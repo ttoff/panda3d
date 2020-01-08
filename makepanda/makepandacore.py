@@ -106,6 +106,7 @@ MAYAVERSIONINFO = [("MAYA6",   "6.0"),
                    ("MAYA2017","2017"),
                    ("MAYA2018","2018"),
                    ("MAYA2019","2019"),
+                   ("MAYA2020","2020"),
 ]
 
 MAXVERSIONINFO = [("MAX6", "SOFTWARE\\Autodesk\\3DSMAX\\6.0", "installdir", "maxsdk\\cssdk\\include"),
@@ -1690,18 +1691,20 @@ def SmartPkgEnable(pkg, pkgconfig = None, libs = None, incs = None, defs = None,
             LibName(target_pkg, "-framework " + framework)
             return
 
-        if os.path.isdir(os.path.join(pkg_dir, "include")):
-            IncDirectory(target_pkg, os.path.join(pkg_dir, "include"))
+        inc_dir = os.path.join(pkg_dir, "include")
+        if os.path.isdir(inc_dir):
+            IncDirectory(target_pkg, inc_dir)
 
             # Handle cases like freetype2 where the include dir is a subdir under "include"
             for i in incs:
-                if os.path.isdir(os.path.join(pkg_dir, "include", i)):
-                    IncDirectory(target_pkg, os.path.join(pkg_dir, "include", i))
+                if os.path.isdir(os.path.join(inc_dir, i)):
+                    IncDirectory(target_pkg, os.path.join(inc_dir, i))
 
-        lpath = [os.path.join(pkg_dir, "lib")]
+        lib_dir = os.path.join(pkg_dir, "lib")
+        lpath = [lib_dir]
 
         if not PkgSkip("PYTHON"):
-            py_lib_dir = os.path.join(pkg_dir, "lib", SDK["PYTHONVERSION"])
+            py_lib_dir = os.path.join(lib_dir, SDK["PYTHONVERSION"])
             if os.path.isdir(py_lib_dir):
                 lpath.append(py_lib_dir)
 
@@ -2321,7 +2324,6 @@ def SdkLocateWindows(version = '7.1'):
                 if not os.path.isdir(os.path.join(platsdk, 'Lib', verstring, 'um')):
                     continue
 
-                print(verstring)
                 vertuple = tuple(map(int, verstring.split('.')))
                 if vertuple > max_version:
                     version = verstring
@@ -2384,7 +2386,9 @@ def SdkLocateMacOSX(osxtarget = None):
     if (GetHost() != "darwin"): return
     if (osxtarget != None):
         sdkname = "MacOSX%d.%d" % osxtarget
-        if (os.path.exists("/Developer/SDKs/%su.sdk" % sdkname)):
+        if (os.path.exists("/Library/Developer/CommandLineTools/SDKs/%s.sdk" % sdkname)):
+            SDK["MACOSX"] = "/Library/Developer/CommandLineTools/SDKs/%s.sdk" % sdkname
+        elif (os.path.exists("/Developer/SDKs/%su.sdk" % sdkname)):
             SDK["MACOSX"] = "/Developer/SDKs/%su.sdk" % sdkname
         elif (os.path.exists("/Developer/SDKs/%s.sdk" % sdkname)):
             SDK["MACOSX"] = "/Developer/SDKs/%s.sdk" % sdkname
@@ -2402,50 +2406,6 @@ def SdkLocateMacOSX(osxtarget = None):
                 exit("Couldn't find any MacOSX SDK for OSX version %s!" % sdkname)
     else:
         SDK["MACOSX"] = ""
-
-# Latest first
-PHYSXVERSIONINFO = [
-    ("PHYSX284", "v2.8.4"),
-    ("PHYSX283", "v2.8.3"),
-    ("PHYSX281", "v2.8.1"),
-]
-
-def SdkLocatePhysX():
-    # First check for a physx directory in sdks.
-    dir = GetSdkDir("physx")
-    if (dir and os.path.isdir(dir)):
-        SDK["PHYSX"] = dir
-        SDK["PHYSXLIBS"] = dir + "/lib"
-        return
-
-    if CrossCompiling():
-        return
-
-    # Try to find a PhysX installation on the system.
-    for (ver, key) in PHYSXVERSIONINFO:
-        if (GetHost() == "windows"):
-            folders = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\Folders"
-            for folder in ListRegistryValues(folders):
-                if folder.endswith("NVIDIA PhysX SDK\\%s\\SDKs\\" % key) or \
-                   folder.endswith("NVIDIA PhysX SDK\\%s_win\\SDKs\\" % key):
-
-                    SDK["PHYSX"] = folder
-                    if GetTargetArch() == 'x64':
-                        SDK["PHYSXLIBS"] = folder + "/lib/win64"
-                        AddToPathEnv("PATH", folder + "/../Bin/win64/")
-                    else:
-                        SDK["PHYSXLIBS"] = folder + "/lib/win32"
-                        AddToPathEnv("PATH", folder + "/../Bin/win32/")
-
-                    return
-
-        elif (GetHost() == "linux"):
-            incpath = "/usr/include/PhysX/%s/SDKs" % key
-            libpath = "/usr/lib/PhysX/%s" % key
-            if (os.path.isdir(incpath) and os.path.isdir(libpath)):
-                SDK["PHYSX"] = incpath
-                SDK["PHYSXLIBS"] = libpath
-                return
 
 def SdkLocateSpeedTree():
     # Look for all of the SpeedTree SDK directories within the
@@ -2480,6 +2440,8 @@ def SdkLocateAndroid():
         return
 
     # Allow ANDROID_API/ANDROID_ABI to be used in makepanda.py.
+    if ANDROID_API is None:
+        SetTarget('android')
     api = ANDROID_API
     SDK["ANDROID_API"] = api
 
@@ -2655,12 +2617,6 @@ def SdkAutoDisableMax():
                 WARNINGS.append("I have automatically added this command-line option: --no-"+version.lower())
             PkgDisable(version)
 
-def SdkAutoDisablePhysX():
-    if ("PHYSX" not in SDK) and (PkgSkip("PHYSX")==0):
-        PkgDisable("PHYSX")
-        WARNINGS.append("I cannot locate SDK for PhysX")
-        WARNINGS.append("I have automatically added this command-line option: --no-physx")
-
 def SdkAutoDisableSpeedTree():
     if ("SPEEDTREE" not in SDK) and (PkgSkip("SPEEDTREE")==0):
         PkgDisable("SPEEDTREE")
@@ -2798,7 +2754,7 @@ def SetupVisualStudioEnviron():
         elif not win_kit.endswith('\\'):
             win_kit += '\\'
 
-        for vnum in 10150, 10240, 10586, 14393, 15063, 16299, 17134, 17763:
+        for vnum in 10150, 10240, 10586, 14393, 15063, 16299, 17134, 17763, 18362:
             version = "10.0.{0}.0".format(vnum)
             if os.path.isfile(win_kit + "Include\\" + version + "\\ucrt\\assert.h"):
                 print("Using Universal CRT %s" % (version))
@@ -3166,7 +3122,7 @@ def CopyPythonTree(dstdir, srcdir, lib2to3_fixers=[], threads=0):
                 if (NeedsBuild([dstpth], [srcpth])):
                     WriteBinaryFile(dstpth, ReadBinaryFile(srcpth))
 
-                    if ext == '.py' and not entry.endswith('-extensions.py'):
+                    if ext == '.py' and not entry.endswith('-extensions.py') and lib2to3 is not None:
                         refactor.append((dstpth, srcpth))
                         lib2to3_args.append(dstpth)
                     else:
