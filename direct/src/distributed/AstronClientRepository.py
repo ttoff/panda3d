@@ -265,6 +265,6 @@ class AstronClientRepository(ClientRepositoryBase):
         """
         This implicitly deletes all objects from the repository.
         """
-        for do_id in self.doId2do.keys():
+        for do_id in list(self.doId2do.keys()):
             self.deleteObject(do_id)
         ClientRepositoryBase.disconnect(self)
