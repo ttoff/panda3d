@@ -42,7 +42,9 @@ enum ChatFlags {
   CF_quit_button = 32,
   CF_reversed = 64,
   CF_snd_openchat = 128,
-  CF_no_quit_button = 256
+  CF_no_quit_button = 256,
+  // Offline exclusive flags
+  CF_exclaim = 512
 };
 
 END_PUBLISH
