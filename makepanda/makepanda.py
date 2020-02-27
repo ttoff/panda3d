@@ -3554,6 +3554,19 @@ TargetAdd('libp3gobj.in', opts=['IMOD:panda3d.core', 'ILIB:libp3gobj', 'SRCDIR:p
 PyTargetAdd('p3gobj_ext_composite.obj', opts=OPTS, input='p3gobj_ext_composite.cxx')
 
 #
+# DIRECTORY: panda/src/nametag/
+#
+
+OPTS=['DIR:panda/src/nametag', 'BUILDING:PANDA']
+TargetAdd('p3nametag_composite1.obj', opts=OPTS, input='nametag_composite.cxx')
+
+OPTS=['DIR:panda/src/nametag', 'PYTHON']
+IGATEFILES=GetDirectoryContents('panda/src/nametag', ["*.h", "*_composite.cxx"])
+TargetAdd('libp3nametag.in', opts=OPTS, input=IGATEFILES)
+TargetAdd('libp3nametag.in', opts=['IMOD:panda3d.core', 'ILIB:libp3nametag', 'SRCDIR:panda/src/nametag'])
+PyTargetAdd('libp3nametag_igate.obj', opts=OPTS, input='libp3nametag.in')
+
+#
 # DIRECTORY: panda/src/pgraphnodes/
 #
 
@@ -3862,6 +3875,7 @@ TargetAdd('libpanda.dll', input='p3event_composite1.obj')
 TargetAdd('libpanda.dll', input='p3event_composite2.obj')
 TargetAdd('libpanda.dll', input='p3gobj_composite1.obj')
 TargetAdd('libpanda.dll', input='p3gobj_composite2.obj')
+TargetAdd('libpanda.dll', input='p3nametag_composite1.obj')
 TargetAdd('libpanda.dll', input='p3gsgbase_composite1.obj')
 TargetAdd('libpanda.dll', input='p3linmath_composite1.obj')
 TargetAdd('libpanda.dll', input='p3linmath_composite2.obj')
@@ -3920,6 +3934,7 @@ PyTargetAdd('core_module.obj', input='libp3display.in')
 PyTargetAdd('core_module.obj', input='libp3pipeline.in')
 PyTargetAdd('core_module.obj', input='libp3event.in')
 PyTargetAdd('core_module.obj', input='libp3gobj.in')
+PyTargetAdd('core_module.obj', input='libp3nametag.in')
 PyTargetAdd('core_module.obj', input='libp3gsgbase.in')
 PyTargetAdd('core_module.obj', input='libp3linmath.in')
 PyTargetAdd('core_module.obj', input='libp3mathutil.in')
@@ -3966,6 +3981,7 @@ PyTargetAdd('core.pyd', input='libp3display_igate.obj')
 PyTargetAdd('core.pyd', input='libp3pipeline_igate.obj')
 PyTargetAdd('core.pyd', input='libp3event_igate.obj')
 PyTargetAdd('core.pyd', input='libp3gobj_igate.obj')
+PyTargetAdd('core.pyd', input='libp3nametag_igate.obj')
 PyTargetAdd('core.pyd', input='libp3gsgbase_igate.obj')
 PyTargetAdd('core.pyd', input='libp3linmath_igate.obj')
 PyTargetAdd('core.pyd', input='libp3mathutil_igate.obj')
