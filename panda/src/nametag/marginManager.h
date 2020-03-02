@@ -14,6 +14,7 @@
 #define MARGINMANAGER_H
 
 #include "config_nametag.h"
+#include "nodePath.h"
 
 class MarginPopup; // TODO
 
@@ -27,7 +28,9 @@ PUBLISHED:
                             float screen_left,
                             float screen_right,
                             float screen_bottom,
-                            float screen_top);
+                            float screen_top,
+                            NodePath newParent,
+                            LVector3f newPos);
 
 public:
   virtual bool cull_callback(CullTraverser* trav, CullTraverserData& data);

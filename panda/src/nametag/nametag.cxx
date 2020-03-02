@@ -71,6 +71,9 @@ int Nametag::determine_contents() {
     else if ((v4 & CF_thought) && (v3 & Nametag::C_thought))
       return Nametag::C_thought;
 
+    else if ((v4 & CF_exclaim) && (v3 & Nametag::C_speech))
+      return Nametag::C_exclaim;
+
     if (v3 & Nametag::C_name && m_group->get_name().size() && NametagGlobals::_master_nametags_visible)
       return Nametag::C_name;
   }

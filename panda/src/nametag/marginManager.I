@@ -17,5 +17,7 @@ INLINE void MarginManager::add_grid_cell(float x, float y,
                                          float screen_left,
                                          float screen_right,
                                          float screen_bottom,
-                                         float screen_top) {
+                                         float screen_top,
+                                         NodePath newParent,
+                                         LVector3f newPos) {
 }

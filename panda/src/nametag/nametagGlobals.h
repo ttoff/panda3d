@@ -91,6 +91,12 @@ PUBLISHED:
   INLINE static float get_name_wordwrap();
   INLINE static LVector4f get_card_pad();
 
+  INLINE static void set_exclaim_balloon_3d(PT(ChatBalloon) value);
+  INLINE static PT(ChatBalloon) get_exclaim_balloon_3d();
+  INLINE static void set_exclaim_balloon_2d(PT(ChatBalloon) value);
+  INLINE static PT(ChatBalloon) get_exclaim_balloon_2d();
+
+
   static LColorf get_arrow_color(int color_code);
   static LColorf get_name_bg(int color_code, PGButton::State state);
   static LColorf get_name_fg(int color_code, PGButton::State state);
@@ -130,6 +136,8 @@ public:
   static int _margin_prop_seq;
   static LVector4f _default_qt_color;
   static LPoint3f _balloon_text_origin;
+  static PT(ChatBalloon) _exclaim_balloon_3d;
+  static PT(ChatBalloon) _exclaim_balloon_2d;
 };
 
 #include "nametagGlobals.I"

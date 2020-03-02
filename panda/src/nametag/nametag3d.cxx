@@ -24,6 +24,7 @@ Nametag3d::Nametag3d() : Nametag(10.5), PandaNode("unnamed"),
   set_cull_callback();
   m_np_top = NodePath::any_path(new PandaNode("top"));
   m_chat_contents = 0;
+  m_scale_adj = 1;
 
   set_bounds(new BoundingSphere(LPoint3f(0, 0, 0), 2.0));
 }
@@ -61,11 +62,17 @@ void Nametag3d::update_contents() {
 
   m_chat_contents = determine_contents();
   if (is_group_managed()) {
+    m_scale_adj = 1;
     if (m_chat_contents & Nametag::C_speech)
       generate_chat(NametagGlobals::_speech_balloon_3d);
 
     else if (m_chat_contents & Nametag::C_thought)
       generate_chat(NametagGlobals::_thought_balloon_3d);
+
+    else if (m_chat_contents & Nametag::C_exclaim) {
+      m_scale_adj = 1.25;
+      generate_chat(NametagGlobals::_exclaim_balloon_2d);
+    }
 
     else if (m_chat_contents & Nametag::C_name)
       generate_name();
@@ -90,7 +97,7 @@ void Nametag3d::adjust_to_camera(NodePath np, int sort) {
     float v122 = a3[3][1];
     float v30 = (v122 > 0.1) ? v122 : 0.1;
     float v31 = v30 * 0.02;
-    float v121 = std::pow(v31, 0.5) * NametagGlobals::get_global_nametag_scale() * 0.56;
+    float v121 = std::pow(v31, 0.5) * (NametagGlobals::get_global_nametag_scale() * m_scale_adj) * 0.56;
 
     float v42 = 0;
     if (m_billboard_offset != 0.0) {

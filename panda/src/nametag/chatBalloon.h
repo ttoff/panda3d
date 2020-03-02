@@ -23,6 +23,7 @@ PUBLISHED:
   INLINE virtual ~ChatBalloon();
   INLINE ChatBalloon(PT(PandaNode) node);
   INLINE ChatBalloon(const NodePath& np);
+  INLINE void set_hscale(float hscale);
 
 public:
   INLINE float get_hscale();

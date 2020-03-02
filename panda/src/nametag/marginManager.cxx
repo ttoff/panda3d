@@ -13,6 +13,7 @@
 #include "marginManager.h"
 #include "marginPopup.h"
 #include "omniBoundingVolume.h"
+#include "nodePath.h"
 
 TypeHandle MarginManager::_type_handle;
 

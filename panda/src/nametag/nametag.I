@@ -14,7 +14,7 @@ INLINE Nametag::Nametag(float wordwrap) : ClickablePopup(),
     m_avatar(NodePath()), m_ival(nullptr),
     m_popup_region(nullptr), m_seq2d(0),
     m_mouse_watcher(nullptr), m_draw_order(0),
-    m_has_draw_order(false), m_contents(CF_speech | CF_thought | CF_quicktalker),
+    m_has_draw_order(false), m_contents(CF_speech | CF_thought | CF_quicktalker | CF_exclaim),
     m_active(true), m_group(nullptr), m_wordwrap(wordwrap), m_has_region(false) {
   char ival_name[136];
   sprintf(ival_name, "flash-%p", this);

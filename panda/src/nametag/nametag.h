@@ -23,7 +23,8 @@ PUBLISHED:
   enum NametagContents {
     C_name = 1,
     C_speech = 2,
-    C_thought = 4
+    C_thought = 4,
+    C_exclaim = 8
   };
 
   INLINE virtual ~Nametag();
@@ -71,6 +72,7 @@ protected:
   void stop_flash();
 
   int m_chat_contents;
+  int m_scale_adj;
   int m_draw_order;
   bool m_has_draw_order;
   int m_contents;

@@ -39,6 +39,8 @@ LVector4f NametagGlobals::_card_pad = LVector4f(0.1, 0.1, 0.1, 0);
 int NametagGlobals::_margin_prop_seq = 0;
 LVector4f NametagGlobals::_default_qt_color = LVector4f(0.8, 0.8, 1, 1);
 LPoint3f NametagGlobals::_balloon_text_origin = LPoint3f(1.0, 0, 2.0);
+PT(ChatBalloon) NametagGlobals::_exclaim_balloon_3d = nullptr;
+PT(ChatBalloon) NametagGlobals::_exclaim_balloon_2d = nullptr;
 
 LColorf NametagGlobals::get_arrow_color(int color_code) {
   LColorf _colors[9] = {

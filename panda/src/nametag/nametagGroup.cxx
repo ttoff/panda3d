@@ -25,7 +25,7 @@ NametagGroup::NametagGroup() : m_name_font(nullptr), m_chat_font(nullptr),
   m_balloon_color(NametagGlobals::_balloon_modulation_color),
   m_has_shadow(false), m_is_flashing(false), m_chat_flags(0),
   m_stomp_time(0), m_stomp_delay(0.5), m_manager(nullptr),
-  m_contents(CF_speech | CF_thought | CF_quicktalker),
+  m_contents(CF_speech | CF_thought | CF_quicktalker | CF_exclaim),
   m_is_active(true), m_active(NametagGlobals::_master_nametags_active),
   m_visible(NametagGlobals::_master_nametags_visible) {
   m_name_icon = NodePath::any_path(new PandaNode("icon"));

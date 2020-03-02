@@ -203,3 +203,21 @@ INLINE float NametagGlobals::get_name_wordwrap() {
 INLINE LVector4f NametagGlobals::get_card_pad() {
   return NametagGlobals::_card_pad;
 }
+
+// Offline exlcusive functions:
+
+INLINE void NametagGlobals::set_exclaim_balloon_3d(PT(ChatBalloon) value) {
+  NametagGlobals::_exclaim_balloon_3d = value;
+}
+
+INLINE PT(ChatBalloon) NametagGlobals::get_exclaim_balloon_3d() {
+  return NametagGlobals::_exclaim_balloon_3d;
+}
+
+INLINE void NametagGlobals::set_exclaim_balloon_2d(PT(ChatBalloon) value) {
+  NametagGlobals::_exclaim_balloon_2d = value;
+}
+
+INLINE PT(ChatBalloon) NametagGlobals::get_exclaim_balloon_2d() {
+  return NametagGlobals::_exclaim_balloon_2d;
+}

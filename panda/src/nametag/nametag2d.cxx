@@ -68,6 +68,9 @@ void Nametag2d::update_contents() {
     else if (v10 & Nametag::C_thought)
       generate_chat(NametagGlobals::_thought_balloon_2d);
 
+    else if (v10 & Nametag::C_exclaim)
+      generate_chat(NametagGlobals::_exclaim_balloon_2d);
+
     else if (v10 & Nametag::C_name)
       generate_name();
   }
@@ -97,7 +100,7 @@ bool Nametag2d::consider_visible() {
     return false;
 
   bool result = m_group->get_nametag3d_flag() != 2;
-  if (NametagGlobals::_onscreen_chat_forced && m_chat_contents & (Nametag::C_speech | Nametag::C_thought))
+  if (NametagGlobals::_onscreen_chat_forced && m_chat_contents & (Nametag::C_speech | Nametag::C_thought | Nametag::C_exclaim))
     result = 1;
 
   m_group->set_nametag3d_flag(0);

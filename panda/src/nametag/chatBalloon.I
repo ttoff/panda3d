@@ -31,6 +31,10 @@ INLINE float ChatBalloon::get_hscale() {
   return m_hscale;
 }
 
+INLINE void ChatBalloon::set_hscale(float hscale) {
+  m_hscale = hscale;
+}
+
 INLINE float ChatBalloon::get_text_height() {
   return m_text_height;
 }
