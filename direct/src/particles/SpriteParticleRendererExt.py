@@ -42,7 +42,7 @@ class SpriteParticleRendererExt(SpriteParticleRenderer):
 
     def addTextureFromFile(self, fileName=None, rgb=None):
         if(self.getNumAnims() == 0):
-            return self.setTextureFromFile(fileName)
+            return self.setTextureFromFile(fileName, rgb=rgb)
 
         if fileName == None:
             fileName = self.getSourceTextureName()
