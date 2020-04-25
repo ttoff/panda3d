@@ -559,7 +559,7 @@ class GravityWalker(DirectObject.DirectObject):
         Activate the arrow keys, etc.
         """
         assert self.notify.debugStateCall(self)
-        assert self.collisionsActive
+        #assert self.collisionsActive
 
         #*#if __debug__:
         #*#    self.accept("control-f3", self.spawnTest) #*#
