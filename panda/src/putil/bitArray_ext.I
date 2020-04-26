@@ -6,16 +6,15 @@
  * license.  You should have received a copy of this license along
  * with this source code in a file named "LICENSE."
  *
- * @file socket_tcp_ssl.cxx
- * @author drose
- * @date 2007-03-01
+ * @file bitArray_ext.I
+ * @author rdb
+ * @date 2020-03-21
  */
 
-#include "socket_tcp_ssl.h"
-
-#ifdef HAVE_OPENSSL
-
-SSL_CTX *global_ssl_ctx;
-TypeHandle Socket_TCP_SSL::_type_handle;
-
-#endif  // HAVE_OPENSSL
+/**
+ * Returns true if the value is not zero.
+ */
+INLINE bool Extension<BitArray>::
+__bool__() const {
+  return !_this->is_zero();
+}
