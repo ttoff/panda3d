@@ -105,6 +105,11 @@ egg-object-type-ghost           <Scalar> collide-mask { 0 }
 # renders the object in add mode instead of the normal opaque mode.
 egg-object-type-glow            <Scalar> blend { add }
 
+# "shadow-cast" allows for avatar shadows to appear on ground collisions
+# "smooth-floors" makes non-horizontal floor collisions smoother
+egg-object-type-shadow-cast     <Tag> cam { shground } <Scalar> draw-order { 0 } <Scalar> bin { ground }
+egg-object-type-smooth-floors   <Collide> { Polyset descend } <Scalar> from-collide-mask { 0x000fffff } <Scalar> into-collide-mask { 0x00000002 }
+
 # This module allows direct loading of formats like .flt, .mb, or .dxf
 
 load-file-type p3ptloader
