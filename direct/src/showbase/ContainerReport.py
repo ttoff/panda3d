@@ -87,7 +87,7 @@ class ContainerReport(Job):
             if type(parentObj) in (types.StringType, types.UnicodeType):
                 continue
 
-            if type(parentObj) in (types.ModuleType, types.InstanceType):
+            if type(parentObj) in (types.ModuleType, object):
                 child = parentObj.__dict__
                 if self._examine(child):
                     assert (self._queue.back() is child)

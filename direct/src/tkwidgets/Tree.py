@@ -60,9 +60,10 @@ class TreeNode:
         if self._popupMenu:
             self._popupMenu.destroy()
         for key in self.kidKeys:
-            c = self.children[key]
-            del self.children[key]
-            c.destroy()
+            c = self.children.get(key)
+            if c:
+                del self.children[key]
+                c.destroy()
         self.parent = None
 
     def geticonimage(self, name):

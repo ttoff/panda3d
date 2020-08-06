@@ -212,7 +212,7 @@ class GarbageReport(Job):
                     startIndex = 0
                     # + 1 to include a reference back to the first object
                     endIndex = numObjs + 1
-                    if type(objs[-1]) is types.InstanceType and type(objs[0]) is dict:
+                    if type(objs[-1]) is object and type(objs[0]) is dict:
                         startIndex -= 1
                         endIndex -= 1
 
@@ -221,7 +221,7 @@ class GarbageReport(Job):
                             numToSkip -= 1
                             continue
                         obj = objs[index]
-                        if type(obj) is types.InstanceType:
+                        if type(obj) is object:
                             if not objAlreadyRepresented:
                                 cycleBySyntax += '%s' % obj.__class__.__name__
                             cycleBySyntax += '.'

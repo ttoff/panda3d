@@ -904,7 +904,7 @@ def register_game(app_id, steam_id=None, command=None):
             if not path.exists(discord_path):
                 makedirs(discord_path)
             with open(path.join(discord_path, "{}.json".format(aid)), 'w') as f:
-                f.write("{\"command\": \"{}\"}".format(cmd))
+                f.write("{{\"command\": \"{}\"}}".format(cmd))
 
         if steam_id:
             command = "steam://rungameid/{}".format(steam_id)
