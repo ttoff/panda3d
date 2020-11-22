@@ -107,8 +107,10 @@ egg-object-type-glow            <Scalar> blend { add }
 
 # "shadow-cast" allows for avatar shadows to appear on ground collisions
 # "smooth-floors" makes non-horizontal floor collisions smoother
+# "camera-collide" allows the camera to collide with geometry
 egg-object-type-shadow-cast     <Tag> cam { shground } <Scalar> draw-order { 0 } <Scalar> bin { ground }
 egg-object-type-smooth-floors   <Collide> { Polyset descend } <Scalar> from-collide-mask { 0x000fffff } <Scalar> into-collide-mask { 0x00000002 }
+egg-object-type-camera-collide  <Scalar> collide-mask { 0x04 } <Collide> { Polyset descend }
 
 # This module allows direct loading of formats like .flt, .mb, or .dxf
 
