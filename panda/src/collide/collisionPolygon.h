@@ -42,6 +42,8 @@ public:
 
   virtual CollisionSolid *make_copy();
 
+  static bool verify_points(const LPoint3 *begin, const LPoint3 *end);
+
 PUBLISHED:
   virtual LPoint3 get_collision_origin() const;
 
@@ -53,10 +55,12 @@ PUBLISHED:
   INLINE static bool verify_points(const LPoint3 &a, const LPoint3 &b,
                                    const LPoint3 &c, const LPoint3 &d);
   static bool verify_points(const LPoint3 &a, const LPoint3 &b, const LPoint3 &c);
-  static bool verify_points(const LPoint3 *begin, const LPoint3 *end);
 
   bool is_valid() const;
   bool is_concave() const;
+
+  EXTENSION(static bool verify_points(PyObject *points));
+  EXTENSION(void setup_points(PyObject *points));
 
 PUBLISHED:
   MAKE_SEQ_PROPERTY(points, get_num_points, get_point);
@@ -69,6 +73,8 @@ public:
   virtual PT(PandaNode) get_viz(const CullTraverser *trav,
                                 const CullTraverserData &data,
                                 bool bounds_only) const;
+
+  void setup_points(const LPoint3 *begin, const LPoint3 *end);
 
   virtual PStatCollector &get_volume_pcollector();
   virtual PStatCollector &get_test_pcollector();
@@ -127,7 +133,6 @@ private:
   PN_stdfloat dist_to_polygon(const LPoint2 &p, LPoint2 &edge_p, const Points &points) const;
   void project(const LVector3 &axis, PN_stdfloat &center, PN_stdfloat &extent) const;
 
-  void setup_points(const LPoint3 *begin, const LPoint3 *end);
   INLINE LPoint2 to_2d(const LVecBase3 &point3d) const;
   INLINE void calc_to_3d_mat(LMatrix4 &to_3d_mat) const;
   INLINE void rederive_to_3d_mat(LMatrix4 &to_3d_mat) const;

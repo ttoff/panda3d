@@ -487,6 +487,13 @@ reflect_attribute(int i, char *name_buffer, GLsizei name_buflen) {
       bind._name = InternalName::get_texcoord();
       bind._append_uv = atoi(noprefix.substr(13).c_str());
 
+    } else if (noprefix == "InstanceMatrix") {
+      bind._name = InternalName::get_instance_matrix();
+
+      if (param_type != GL_FLOAT_MAT4x3) {
+        GLCAT.error() << "p3d_InstanceMatrix should be mat4x3!\n";
+      }
+
     } else {
       GLCAT.error() << "Unrecognized vertex attrib '" << name_buffer << "'!\n";
       return;
@@ -498,15 +505,23 @@ reflect_attribute(int i, char *name_buffer, GLsizei name_buflen) {
 
   // Get the number of bind points for arrays and matrices.
   switch (param_type) {
+  case GL_FLOAT_MAT3x2:
   case GL_FLOAT_MAT3:
+  case GL_FLOAT_MAT3x4:
 #ifndef OPENGLES
+  case GL_DOUBLE_MAT3x2:
   case GL_DOUBLE_MAT3:
+  case GL_DOUBLE_MAT3x4:
 #endif
     bind._elements = 3 * param_size;
     break;
 
+  case GL_FLOAT_MAT4x2:
+  case GL_FLOAT_MAT4x3:
   case GL_FLOAT_MAT4:
 #ifndef OPENGLES
+  case GL_DOUBLE_MAT4x2:
+  case GL_DOUBLE_MAT4x3:
   case GL_DOUBLE_MAT4:
 #endif
     bind._elements = 4 * param_size;
@@ -948,27 +963,65 @@ reflect_uniform(int i, char *name_buffer, GLsizei name_buflen) {
       _shader->cp_add_mat_spec(bind);
       return;
     }
-    if (size > 7 && noprefix.substr(0, 7) == "Texture") {
+    if (noprefix.compare(0, 7, "Texture") == 0) {
       Shader::ShaderTexSpec bind;
       bind._id = arg_id;
-      bind._part = Shader::STO_stage_i;
-      bind._name = 0;
 
-      string tail;
-      bind._stage = string_to_int(noprefix.substr(7), tail);
-      if (!tail.empty()) {
+      if (!get_sampler_texture_type(bind._desired_type, param_type)) {
         GLCAT.error()
-          << "Error parsing shader input name: unexpected '"
-          << tail << "' in '" << param_name << "'\n";
+          << "Could not bind texture input " << param_name << "\n";
         return;
       }
 
-      if (get_sampler_texture_type(bind._desired_type, param_type)) {
+      if (size > 7 && isdigit(noprefix[7])) {
+        // p3d_Texture0, p3d_Texture1, etc.
+        bind._part = Shader::STO_stage_i;
+
+        string tail;
+        bind._stage = string_to_int(noprefix.substr(7), tail);
+        if (!tail.empty()) {
+          GLCAT.error()
+            << "Error parsing shader input name: unexpected '"
+            << tail << "' in '" << param_name << "'\n";
+          return;
+        }
         _glgsg->_glUniform1i(p, _shader->_tex_spec.size());
         _shader->_tex_spec.push_back(bind);
-      } else {
-        GLCAT.error()
-          << "Could not bind texture input " << param_name << "\n";
+      }
+      else {
+        // p3d_Texture[] or p3d_TextureModulate[], etc.
+        if (size == 7) {
+          bind._part = Shader::STO_stage_i;
+        }
+        else if (noprefix.compare(7, string::npos, "FF") == 0) {
+          bind._part = Shader::STO_ff_stage_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Modulate") == 0) {
+          bind._part = Shader::STO_stage_modulate_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Add") == 0) {
+          bind._part = Shader::STO_stage_add_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Normal") == 0) {
+          bind._part = Shader::STO_stage_normal_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Height") == 0) {
+          bind._part = Shader::STO_stage_height_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Selector") == 0) {
+          bind._part = Shader::STO_stage_selector_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Gloss") == 0) {
+          bind._part = Shader::STO_stage_gloss_i;
+        }
+        else if (noprefix.compare(7, string::npos, "Emission") == 0) {
+          bind._part = Shader::STO_stage_emission_i;
+        }
+
+        for (bind._stage = 0; bind._stage < param_size; ++bind._stage) {
+          _glgsg->_glUniform1i(p + bind._stage, _shader->_tex_spec.size());
+          _shader->_tex_spec.push_back(bind);
+        }
       }
       return;
     }
@@ -2460,6 +2513,22 @@ update_shader_vertex_arrays(ShaderContext *prev, bool force) {
 #else
           _glgsg->_glVertexAttrib4fv(p, _glgsg->_scene_graph_color.get_data());
 #endif
+        }
+        else if (name == InternalName::get_transform_index() &&
+                 _glgsg->_glVertexAttribI4ui != nullptr) {
+          _glgsg->_glVertexAttribI4ui(p, 0, 1, 2, 3);
+        }
+        else if (name == InternalName::get_instance_matrix()) {
+          const LMatrix4 &ident_mat = LMatrix4::ident_mat();
+
+          for (int i = 0; i < bind._elements; ++i) {
+#ifdef STDFLOAT_DOUBLE
+            _glgsg->_glVertexAttrib4dv(p, ident_mat.get_data() + i * 4);
+#else
+            _glgsg->_glVertexAttrib4fv(p, ident_mat.get_data() + i * 4);
+#endif
+            ++p;
+          }
         }
       }
     }
