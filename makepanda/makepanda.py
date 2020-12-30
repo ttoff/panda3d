@@ -757,14 +757,21 @@ if (COMPILER=="GCC"):
         PkgDisable("COCOA")
 
     if GetTarget() == 'darwin':
-        if 'x86_64' not in OSX_ARCHS and 'i386' not in OSX_ARCHS:
+        if OSX_ARCHS and 'x86_64' not in OSX_ARCHS and 'i386' not in OSX_ARCHS:
             # These support only these archs, so don't build them if we're not
             # targeting any of the supported archs.
             PkgDisable("FMODEX")
             PkgDisable("NVIDIACG")
-        elif (OSX_ARCHS and 'arm64' in OSX_ARCHS) or \
-             not os.path.isfile('/usr/lib/libstdc++.6.0.9.dylib'):
+        elif OSX_ARCHS and 'arm64' in OSX_ARCHS:
+            # We must be using the 11.0 SDK or higher, so can't build FMOD Ex
+            if not PkgSkip("FMODEX"):
+                Warn("thirdparty package fmodex is not supported when targeting arm64, excluding from build")
+            PkgDisable("FMODEX")
+        elif not os.path.isfile(SDK.get("MACOSX", "") + '/usr/lib/libstdc++.6.0.9.tbd') and \
+             not os.path.isfile(SDK.get("MACOSX", "") + '/usr/lib/libstdc++.6.0.9.dylib'):
             # Also, we can't target FMOD Ex on 10.14 and above
+            if not PkgSkip("FMODEX"):
+                Warn("thirdparty package fmodex requires one of MacOSX 10.9-10.13 SDK, excluding from build")
             PkgDisable("FMODEX")
 
     #if (PkgSkip("PYTHON")==0):
@@ -5798,6 +5805,8 @@ if not PkgSkip("PANDATOOL"):
 # DIRECTORY: pandatool/src/mayaprogs/
 #
 
+MAYA_BUILT = False
+
 for VER in MAYAVERSIONS:
     VNUM = VER[4:]
     if PkgSkip(VER) or PkgSkip("PANDATOOL") or PkgSkip("EGG"):
@@ -5813,6 +5822,8 @@ for VER in MAYAVERSIONS:
         ARCH_OPTS = ['NOARCH:ARM64']
     else:
         ARCH_OPTS = []
+
+    MAYA_BUILT = True
 
     OPTS=['DIR:pandatool/src/mayaprogs', 'DIR:pandatool/src/maya', 'DIR:pandatool/src/mayaegg', 'BUILDING:MISC', VER] + ARCH_OPTS
     TargetAdd('mayaeggimport'+VNUM+'_mayaeggimport.obj', opts=OPTS, input='mayaEggImport.cxx')
@@ -5851,30 +5862,31 @@ for VER in MAYAVERSIONS:
     TargetAdd('libmayapview'+VNUM+'.mll', input='libmayaegg'+VNUM+'.lib')
     TargetAdd('libmayapview'+VNUM+'.mll', input='libmaya'+VNUM+'.lib')
     TargetAdd('libmayapview'+VNUM+'.mll', input='libp3framework.dll')
-    if GetTarget() == 'windows':
-      TargetAdd('libmayapview'+VNUM+'.mll', input=COMMON_EGG2X_LIBS)
-    else:
-      TargetAdd('libmayapview'+VNUM+'.mll', input=COMMON_EGG2X_LIBS)
+    TargetAdd('libmayapview'+VNUM+'.mll', input=COMMON_EGG2X_LIBS)
     TargetAdd('libmayapview'+VNUM+'.mll', opts=['ADVAPI', VER]+ARCH_OPTS)
 
-    TargetAdd('maya2egg'+VNUM+'_mayaToEgg.obj', opts=OPTS, input='mayaToEgg.cxx')
-    TargetAdd('maya2egg'+VNUM+'_bin.exe', input='maya2egg'+VNUM+'_mayaToEgg.obj')
+    TargetAdd('mayaprogs'+VNUM+'_eggToMaya.obj', opts=OPTS, input='eggToMaya.cxx')
+    TargetAdd('mayaprogs'+VNUM+'_mayaToEgg.obj', opts=OPTS, input='mayaToEgg.cxx')
+    TargetAdd('mayaprogs_mayaConversionServer.obj', opts=OPTS, input='mayaConversionServer.cxx')
+
+    TargetAdd('maya2egg'+VNUM+'_mayaToEggBin.obj', opts=OPTS, input='mayaToEggBin.cxx')
+    TargetAdd('maya2egg'+VNUM+'_bin.exe', input='mayaprogs'+VNUM+'_eggToMaya.obj')
+    TargetAdd('maya2egg'+VNUM+'_bin.exe', input='mayaprogs'+VNUM+'_mayaToEgg.obj')
+    TargetAdd('maya2egg'+VNUM+'_bin.exe', input='mayaprogs_mayaConversionServer.obj')
+    TargetAdd('maya2egg'+VNUM+'_bin.exe', input='maya2egg'+VNUM+'_mayaToEggBin.obj')
     TargetAdd('maya2egg'+VNUM+'_bin.exe', input='libmayaegg'+VNUM+'.lib')
     TargetAdd('maya2egg'+VNUM+'_bin.exe', input='libmaya'+VNUM+'.lib')
-    if GetTarget() == 'windows':
-      TargetAdd('maya2egg'+VNUM+'_bin.exe', input=COMMON_EGG2X_LIBS)
-    else:
-      TargetAdd('maya2egg'+VNUM+'_bin.exe', input=COMMON_EGG2X_LIBS)
+    TargetAdd('maya2egg'+VNUM+'_bin.exe', input=COMMON_EGG2X_LIBS)
     TargetAdd('maya2egg'+VNUM+'_bin.exe', opts=['ADVAPI', VER]+ARCH_OPTS)
 
-    TargetAdd('egg2maya'+VNUM+'_eggToMaya.obj', opts=OPTS, input='eggToMaya.cxx')
-    TargetAdd('egg2maya'+VNUM+'_bin.exe', input='egg2maya'+VNUM+'_eggToMaya.obj')
+    TargetAdd('egg2maya'+VNUM+'_eggToMayaBin.obj', opts=OPTS, input='eggToMayaBin.cxx')
+    TargetAdd('egg2maya'+VNUM+'_bin.exe', input='mayaprogs'+VNUM+'_eggToMaya.obj')
+    TargetAdd('egg2maya'+VNUM+'_bin.exe', input='mayaprogs'+VNUM+'_mayaToEgg.obj')
+    TargetAdd('egg2maya'+VNUM+'_bin.exe', input='mayaprogs_mayaConversionServer.obj')
+    TargetAdd('egg2maya'+VNUM+'_bin.exe', input='egg2maya'+VNUM+'_eggToMayaBin.obj')
     TargetAdd('egg2maya'+VNUM+'_bin.exe', input='libmayaegg'+VNUM+'.lib')
     TargetAdd('egg2maya'+VNUM+'_bin.exe', input='libmaya'+VNUM+'.lib')
-    if GetTarget() == 'windows':
-      TargetAdd('egg2maya'+VNUM+'_bin.exe', input=COMMON_EGG2X_LIBS)
-    else:
-      TargetAdd('egg2maya'+VNUM+'_bin.exe', input=COMMON_EGG2X_LIBS)
+    TargetAdd('egg2maya'+VNUM+'_bin.exe', input=COMMON_EGG2X_LIBS)
     TargetAdd('egg2maya'+VNUM+'_bin.exe', opts=['ADVAPI', VER]+ARCH_OPTS)
 
     TargetAdd('mayasavepview'+VNUM+'_mayaSavePview.obj', opts=OPTS, input='mayaSavePview.cxx')
@@ -5892,6 +5904,19 @@ for VER in MAYAVERSIONS:
     TargetAdd('egg2maya'+VNUM+'.exe', input='libpandaexpress.dll')
     TargetAdd('egg2maya'+VNUM+'.exe', input=COMMON_DTOOL_LIBS)
     TargetAdd('egg2maya'+VNUM+'.exe', opts=['ADVAPI']+ARCH_OPTS)
+
+if MAYA_BUILT:
+    TargetAdd('mayaprogs_mayaConversionClient.obj', opts=OPTS, input='mayaConversionClient.cxx')
+
+    TargetAdd('maya2egg_mayaToEggClient.obj', opts=OPTS, input='mayaToEggClient.cxx')
+    TargetAdd('maya2egg_client.exe', input='mayaprogs_mayaConversionClient.obj')
+    TargetAdd('maya2egg_client.exe', input='maya2egg_mayaToEggClient.obj')
+    TargetAdd('maya2egg_client.exe', input=COMMON_EGG2X_LIBS)
+
+    TargetAdd('egg2maya_eggToMayaClient.obj', opts=OPTS, input='eggToMayaClient.cxx')
+    TargetAdd('egg2maya_client.exe', input='mayaprogs_mayaConversionClient.obj')
+    TargetAdd('egg2maya_client.exe', input='egg2maya_eggToMayaClient.obj')
+    TargetAdd('egg2maya_client.exe', input=COMMON_EGG2X_LIBS)
 
 #
 # DIRECTORY: contrib/src/ai/
@@ -5975,23 +6000,19 @@ if PkgSkip("PYTHON") == 0:
 if not PkgSkip("DIRECT") and not PkgSkip("EGG"):
   model_extensions = ["*.egg"]
 
-  # Check if we have access to an flt2egg utility, either self-compiled or on the system.
-  if ((PkgSkip("PANDATOOL")==0 and GetHost()==GetTarget()) or LocateBinary('flt2egg')):
-      model_extensions.append("*.flt")
-
-  for model in GetDirectoryContents("dmodels/src/misc", model_extensions):
+  for model in GetDirectoryContents("models/misc", model_extensions):
       if (PkgSkip("ZLIB")==0 and PkgSkip("DEPLOYTOOLS")==0):
           newname = model[:-4] + ".egg.pz"
       else:
           newname = model[:-4] + ".egg"
-      TargetAdd(GetOutputDir()+"/models/misc/"+newname, input="dmodels/src/misc/"+model)
+      TargetAdd(GetOutputDir()+"/models/misc/"+newname, input="models/misc/"+model)
 
-  for model in GetDirectoryContents("dmodels/src/gui", model_extensions):
+  for model in GetDirectoryContents("models/gui", model_extensions):
       if (PkgSkip("ZLIB")==0 and PkgSkip("DEPLOYTOOLS")==0):
           newname = model[:-4] + ".egg.pz"
       else:
           newname = model[:-4] + ".egg"
-      TargetAdd(GetOutputDir()+"/models/gui/"+newname, input="dmodels/src/gui/"+model)
+      TargetAdd(GetOutputDir()+"/models/gui/"+newname, input="models/gui/"+model)
 
   for model in GetDirectoryContents("models", model_extensions):
       if (PkgSkip("ZLIB")==0 and PkgSkip("DEPLOYTOOLS")==0):
@@ -6001,18 +6022,13 @@ if not PkgSkip("DIRECT") and not PkgSkip("EGG"):
       TargetAdd(GetOutputDir()+"/models/"+newname, input="models/"+model)
 
 if not PkgSkip("DIRECT"):
-  CopyAllFiles(GetOutputDir()+"/models/audio/sfx/",  "dmodels/src/audio/sfx/", ".wav")
-  CopyAllFiles(GetOutputDir()+"/models/icons/",      "dmodels/src/icons/",     ".gif")
+  CopyAllFiles(GetOutputDir()+"/models/audio/sfx/",  "models/audio/sfx/",      ".wav")
+  CopyAllFiles(GetOutputDir()+"/models/icons/",      "models/icons/",          ".gif")
 
   CopyAllFiles(GetOutputDir()+"/models/maps/",       "models/maps/",           ".jpg")
   CopyAllFiles(GetOutputDir()+"/models/maps/",       "models/maps/",           ".png")
   CopyAllFiles(GetOutputDir()+"/models/maps/",       "models/maps/",           ".rgb")
   CopyAllFiles(GetOutputDir()+"/models/maps/",       "models/maps/",           ".rgba")
-
-  CopyAllFiles(GetOutputDir()+"/models/maps/",       "dmodels/src/maps/",      ".jpg")
-  CopyAllFiles(GetOutputDir()+"/models/maps/",       "dmodels/src/maps/",      ".png")
-  CopyAllFiles(GetOutputDir()+"/models/maps/",       "dmodels/src/maps/",      ".rgb")
-  CopyAllFiles(GetOutputDir()+"/models/maps/",       "dmodels/src/maps/",      ".rgba")
 
 
 ##########################################################################################
@@ -6068,22 +6084,6 @@ def ParallelMake(tasklist):
     #task = [CompileAnything, [name, inputs, opts], [name], deps, []]
     # task[2] = [name]
     # task[3] = deps
-    # The python tool package, in particular fltegg seems to throw parallelmake off
-    # A hack for now is to divide the tasklist into two parts, one to be built in parallel
-    # and another subpart to be built sequentially. The most time consuming part of the process
-    # is the c++ code generation anyways.
-
-    tasklist_seq = []
-    i = 0
-    while i < len(tasklist):
-        if tasklist[i][2][0].endswith('.egg') | tasklist[i][2][0].endswith('.egg.pz'):
-            break
-        i += 1
-    if i < len(tasklist):
-        tasklist_seq = tasklist[i:]
-        tasklist = tasklist[:i]
-    iNumStartingTasks = len(tasklist)
-
     pending = {}
     for task in tasklist:
         for target in task[2]:
@@ -6125,7 +6125,6 @@ def ParallelMake(tasklist):
     # Make sure there aren't any unsatisfied tasks
     if len(tasklist) > 0:
         exit("Dependency problems: " + str(len(tasklist)) + " tasks not finished. First task unsatisfied: "+str(tasklist[0][2]))
-    SequentialMake(tasklist_seq)
 
 
 def SequentialMake(tasklist):
