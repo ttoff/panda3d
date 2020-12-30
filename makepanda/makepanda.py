@@ -97,7 +97,6 @@ PkgListSet(["PYTHON", "DIRECT",                        # Python support
   "PANDAPARTICLESYSTEM",                               # Built in particle system
   "CONTRIB",                                           # Experimental
   "SSE2", "NEON",                                      # Compiler features
-  "OTP",                                               # OTP
   "TOONTOWN",                                          # Toontown
 ])
 
@@ -464,9 +463,6 @@ if WHEEL and PkgSkip("PYTHON"):
 
 if not os.path.isdir("contrib"):
     PkgDisable("CONTRIB")
-
-if PkgSkip("OTP"):
-    PkgDisable("TOONTOWN")
 
 ########################################################################
 ##
@@ -3167,9 +3163,6 @@ if (PkgSkip("BULLET")==0):
 if (PkgSkip("SPEEDTREE")==0):
     CopyAllHeaders('contrib/src/speedtree')
 
-if (PkgSkip("OTP")==0):
-    CopyAllHeaders('panda/src/otp')
-
 if (PkgSkip("TOONTOWN")==0):
     CopyAllHeaders('panda/src/toontown')
 
@@ -4970,53 +4963,52 @@ if (PkgSkip("DIRECT")==0):
 # DIRECTORY: panda/src/otp/
 #
 
-if (PkgSkip("OTP") == 0 and PkgSkip("PYTHON") == 0):
-    OPTS = ['DIR:panda/src/otp', 'BUILDING:OTP']
-    TargetAdd('otp_composite.obj', opts=OPTS, input='p3otp_composite1.cxx')
-
-    TargetAdd('libp3otp.dll', input='otp_composite.obj')
-    TargetAdd('libp3otp.dll', input='p3interval_composite1.obj')
-    TargetAdd('libp3otp.dll', input=COMMON_PANDA_LIBS)
-    TargetAdd('libp3otp.dll', opts=OPTS)
-
-    OPTS = ['DIR:panda/src/otp']
-    IGATEFILES = GetDirectoryContents('panda/src/otp', ["*.h", "*_composite*.cxx"])
-    TargetAdd('libp3otp.in', opts=OPTS, input=IGATEFILES)
-    TargetAdd('libp3otp.in', opts=['IMOD:panda3d.otp', 'ILIB:libp3otp', 'SRCDIR:panda/src/otp'])
-
-    PyTargetAdd('otp_module.obj', input='libp3otp.in')
-    PyTargetAdd('otp_module.obj', input='libp3interval.in')
-    PyTargetAdd('otp_module.obj', opts=OPTS)
-    PyTargetAdd('otp_module.obj', opts=['IMOD:panda3d.otp', 'ILIB:otp', 'IMPORT:panda3d.core'])
-
-    PyTargetAdd('otp.pyd', input='otp_module.obj')
-    PyTargetAdd('otp.pyd', input='libp3otp_igate.obj')
-    PyTargetAdd('otp.pyd', input='libp3otp.dll')
-    PyTargetAdd('otp.pyd', input='libp3interval_igate.obj')
-    PyTargetAdd('otp.pyd', input='libp3interrogatedb.dll')
-    PyTargetAdd('otp.pyd', input=COMMON_PANDA_LIBS)
+# if (PkgSkip("OTP") == 0 and PkgSkip("PYTHON") == 0):
+#     OPTS = ['DIR:panda/src/otp', 'BUILDING:OTP']
+#     TargetAdd('otp_composite.obj', opts=OPTS, input='p3otp_composite1.cxx')
+#
+#     TargetAdd('libp3otp.dll', input='otp_composite.obj')
+#     TargetAdd('libp3otp.dll', input='p3interval_composite1.obj')
+#     TargetAdd('libp3otp.dll', input=COMMON_PANDA_LIBS)
+#     TargetAdd('libp3otp.dll', opts=OPTS)
+#
+#     OPTS = ['DIR:panda/src/otp']
+#     IGATEFILES = GetDirectoryContents('panda/src/otp', ["*.h", "*_composite*.cxx"])
+#     TargetAdd('libp3otp.in', opts=OPTS, input=IGATEFILES)
+#     TargetAdd('libp3otp.in', opts=['IMOD:panda3d.otp', 'ILIB:libp3otp', 'SRCDIR:panda/src/otp'])
+#
+#     PyTargetAdd('otp_module.obj', input='libp3otp.in')
+#     PyTargetAdd('otp_module.obj', input='libp3interval.in')
+#     PyTargetAdd('otp_module.obj', opts=OPTS)
+#     PyTargetAdd('otp_module.obj', opts=['IMOD:panda3d.otp', 'ILIB:otp', 'IMPORT:panda3d.core'])
+#
+#     PyTargetAdd('otp.pyd', input='otp_module.obj')
+#     PyTargetAdd('otp.pyd', input='libp3otp_igate.obj')
+#     PyTargetAdd('otp.pyd', input='libp3otp.dll')
+#     PyTargetAdd('otp.pyd', input='libp3interval_igate.obj')
+#     PyTargetAdd('otp.pyd', input='libp3interrogatedb.dll')
+#     PyTargetAdd('otp.pyd', input=COMMON_PANDA_LIBS)
 
 #
 # DIRECTORY: panda/src/toontown/
 #
 
-if (PkgSkip("OTP") == 0 and PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0):
-    OPTS = ['DIR:panda/src/toontown', 'DIR:panda/src/otp', 'BUILDING:TOONTOWN']
+if (PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0):
+    OPTS = ['DIR:panda/src/toontown', 'BUILDING:TOONTOWN']
     TargetAdd('toontown_composite.obj', opts=OPTS, input='p3toontown_composite1.cxx')
 
     OPTS = ['DIR:panda/src/toontown', 'BUILDING:TOONTOWN', 'BISONPREFIX_dnayy']
     TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input='dnaParser.yxx')
     TargetAdd('p3toontown_dnaLexer.obj', opts=OPTS, input='dnaLexer.lxx')
 
-    # TargetAdd('libp3toontown.dll', input='otp_composite.obj')
     TargetAdd('libp3toontown.dll', input='toontown_composite.obj')
     TargetAdd('libp3toontown.dll', input='p3toontown_dnaParser.obj')
     TargetAdd('libp3toontown.dll', input='p3toontown_dnaLexer.obj')
-    TargetAdd('libp3toontown.dll', input='p3interval_composite1.obj')
+    # TargetAdd('libp3toontown.dll', input='p3interval_composite1.obj')
     TargetAdd('libp3toontown.dll', input=COMMON_PANDA_LIBS)
     TargetAdd('libp3toontown.dll', opts=OPTS)
 
-    OPTS = ['DIR:panda/src/toontown', 'DIR:panda/src/otp']
+    OPTS = ['DIR:panda/src/toontown']
     IGATEFILES = GetDirectoryContents('panda/src/toontown', ["*.h", "*_composite*.cxx"])
     TargetAdd('libp3toontown.in', opts=OPTS, input=IGATEFILES)
     TargetAdd('libp3toontown.in', opts=['IMOD:panda3d.toontown', 'ILIB:libp3toontown', 'SRCDIR:panda/src/toontown'])
@@ -5029,6 +5021,7 @@ if (PkgSkip("OTP") == 0 and PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0)
     PyTargetAdd('toontown.pyd', input='libp3toontown_igate.obj')
     PyTargetAdd('toontown.pyd', input='libp3toontown.dll')
     PyTargetAdd('toontown.pyd', input='libp3interrogatedb.dll')
+    PyTargetAdd('toontown.pyd', input='libp3direct.dll')
     PyTargetAdd('toontown.pyd', input=COMMON_PANDA_LIBS)
 
 #

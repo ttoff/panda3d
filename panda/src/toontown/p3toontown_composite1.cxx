@@ -1,3 +1,28 @@
+// Movement
+#include "cImpulse.cxx"
+#include "cMover.cxx"
+#include "cMoverGroup.cxx"
+#include "config_movement.cxx"
+
+// Nametag
+#include "chatBalloon.cxx"
+#include "clickablePopup.cxx"
+#include "config_nametag.cxx"
+#include "marginManager.cxx"
+#include "marginPopup.cxx"
+#include "nametag.cxx"
+#include "nametag2d.cxx"
+#include "nametag3d.cxx"
+#include "nametagFloat2d.cxx"
+#include "nametagFloat3d.cxx"
+#include "nametagGlobals.cxx"
+#include "nametagGroup.cxx"
+#include "popupMouseWatcherRegion.cxx"
+#include "whisperPopup.cxx"
+
+// Navigation
+// #include "pathTable.cxx"
+
 // DNA
 #include "config_dna.cxx"
 #include "dnaAnimBuilding.cxx"
@@ -27,11 +52,6 @@
 #include "load_dna_file.cxx"
 
 // Pets
-#include "cImpulse.cxx"
-#include "cMover.cxx"
-#include "cMoverGroup.cxx"
-#include "config_movement.cxx"
-
 #include "config_pets.cxx"
 #include "cPetBrain.cxx"
 #include "cPetChase.cxx"
