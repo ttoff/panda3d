@@ -52,7 +52,7 @@ NametagGroup() {
   _region_seq++;
 
   _contents =
-    Nametag::C_name | Nametag::C_speech | Nametag::C_thought;
+    Nametag::C_name | Nametag::C_speech | Nametag::C_thought | Nametag::C_exclaim;
   _active = true;
   _master_active = NametagGlobals::get_master_nametags_active();
   _master_visible = NametagGlobals::get_master_nametags_visible();

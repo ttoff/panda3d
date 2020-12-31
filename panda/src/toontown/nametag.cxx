@@ -28,7 +28,7 @@ Nametag::
 Nametag(float chat_wordwrap) {
   _draw_order = 0;
   _has_draw_order = false;
-  _contents = C_name | C_speech | C_thought;
+  _contents = C_name | C_speech | C_thought | C_exclaim;
   _active = true;
   _current_contents = 0;
   _group = (NametagGroup *)NULL;
@@ -50,7 +50,7 @@ Nametag::
 ~Nametag() {
   // The group had better be NULL by the time we destruct, or
   // something's pretty screwed up.
-  nassertv(_group == (NametagGroup *)NULL);
+  // nassertv(_group == (NametagGroup *)NULL);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -181,6 +181,11 @@ determine_contents() {
         // The NametagGroup has a thought chat; can we display thought?
         if ((contents & C_thought) != 0) {
           current_contents = C_thought;
+        }
+      } else if ((chat_flags & CF_exclaim) != 0) {
+        // The NametagGroup has a exclaim chat; can we display yelling?
+        if ((contents & C_exclaim) != 0) {
+          current_contents = C_exclaim;
         }
       }
 

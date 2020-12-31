@@ -4997,14 +4997,18 @@ if (PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0):
     OPTS = ['DIR:panda/src/toontown', 'BUILDING:TOONTOWN']
     TargetAdd('toontown_composite.obj', opts=OPTS, input='p3toontown_composite1.cxx')
 
-    OPTS = ['DIR:panda/src/toontown', 'BUILDING:TOONTOWN', 'BISONPREFIX_dnayy']
-    TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input='dnaParser.yxx')
-    TargetAdd('p3toontown_dnaLexer.obj', opts=OPTS, input='dnaLexer.lxx')
+    # NOTE: Having makepanda call Bison and Flex on the parser/lexer brakes
+    # them for some reason, we're gonna have to build the prebuilt files for now
+    TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input= 'dnaParser.cxx')
+    TargetAdd('p3toontown_dnaLexer.obj', opts=OPTS, input= 'dnaLexer.cxx')
+
+    # OPTS = ['DIR:panda/src/toontown', 'BUILDING:TOONTOWN', 'BISONPREFIX_dnayy']
+    # TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input='dnaParser.yxx')
+    # TargetAdd('p3toontown_dnaLexer.obj', opts=OPTS, input='dnaLexer.lxx')
 
     TargetAdd('libp3toontown.dll', input='toontown_composite.obj')
     TargetAdd('libp3toontown.dll', input='p3toontown_dnaParser.obj')
     TargetAdd('libp3toontown.dll', input='p3toontown_dnaLexer.obj')
-    # TargetAdd('libp3toontown.dll', input='p3interval_composite1.obj')
     TargetAdd('libp3toontown.dll', input=COMMON_PANDA_LIBS)
     TargetAdd('libp3toontown.dll', opts=OPTS)
 

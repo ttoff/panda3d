@@ -129,8 +129,10 @@ PT(TextNode) NametagGlobals::_text_node;
 
 PT(ChatBalloon) NametagGlobals::_speech_balloon_2d;
 PT(ChatBalloon) NametagGlobals::_thought_balloon_2d;
+PT(ChatBalloon) NametagGlobals::_exclaim_balloon_2d;
 PT(ChatBalloon) NametagGlobals::_speech_balloon_3d;
 PT(ChatBalloon) NametagGlobals::_thought_balloon_3d;
+PT(ChatBalloon) NametagGlobals::_exclaim_balloon_3d;
 
 bool NametagGlobals::_master_nametags_active = true;
 bool NametagGlobals::_master_nametags_visible =

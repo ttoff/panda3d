@@ -44,6 +44,8 @@ PUBLISHED:
     C_name     = 0x0001,
     C_speech   = 0x0002,
     C_thought  = 0x0004,
+    // Offline exclusive:
+    C_exclaim  = 0x0008,
   };
 
   INLINE void set_contents(int flags);

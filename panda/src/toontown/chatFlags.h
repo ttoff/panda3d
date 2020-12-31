@@ -24,6 +24,8 @@ enum ChatFlags {
   CF_reversed       = 0x0040,
   CF_snd_openchat   = 0x0080,
   CF_no_quit_button = 0x0100,
+  // Offline exclusive:
+  CF_exclaim        = 0x0200,
 };
 END_PUBLISH
 

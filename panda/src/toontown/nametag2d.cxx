@@ -193,6 +193,8 @@ update_contents() {
       generate_chat(NametagGlobals::get_speech_balloon_2d());
     } else if ((_current_contents & C_thought) != 0) {
       generate_chat(NametagGlobals::get_thought_balloon_2d());
+    } else if ((_current_contents & C_exclaim) != 0) {
+      generate_chat(NametagGlobals::get_exclaim_balloon_2d());
     } else if ((_current_contents & C_name) != 0) {
       generate_name();
     }

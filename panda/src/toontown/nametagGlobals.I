@@ -296,6 +296,29 @@ get_thought_balloon_2d() {
 }
 
 ////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::set_exclaim_balloon_2d
+//       Access: Published, Static
+//  Description: Sets the ChatBalloon geometry that will be used for
+//               rendering exclaim chat messages by Nametag2d objects.
+////////////////////////////////////////////////////////////////////
+INLINE void NametagGlobals::
+set_exclaim_balloon_2d(ChatBalloon *balloon) {
+  _exclaim_balloon_2d = balloon;
+}
+
+////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::get_exclaim_balloon_2d
+//       Access: Published, Static
+//  Description: Returns the ChatBalloon geometry that will be used
+//               for rendering exclaim chat messages by Nametag2d
+//               objects.
+////////////////////////////////////////////////////////////////////
+INLINE ChatBalloon *NametagGlobals::
+get_exclaim_balloon_2d() {
+  return _exclaim_balloon_2d;
+}
+
+////////////////////////////////////////////////////////////////////
 //     Function: NametagGlobals::set_speech_balloon_3d
 //       Access: Published, Static
 //  Description: Sets the ChatBalloon geometry that will be used for
@@ -339,6 +362,29 @@ set_thought_balloon_3d(ChatBalloon *balloon) {
 INLINE ChatBalloon *NametagGlobals::
 get_thought_balloon_3d() {
   return _thought_balloon_3d;
+}
+
+////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::set_exclaim_balloon_3d
+//       Access: Published, Static
+//  Description: Sets the ChatBalloon geometry that will be used for
+//               rendering exclaim chat messages by Nametag3d objects.
+////////////////////////////////////////////////////////////////////
+INLINE void NametagGlobals::
+set_exclaim_balloon_3d(ChatBalloon *balloon) {
+  _exclaim_balloon_3d = balloon;
+}
+
+////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::get_exclaim_balloon_3d
+//       Access: Published, Static
+//  Description: Returns the ChatBalloon geometry that will be used
+//               for rendering exclaim chat messages by Nametag3d
+//               objects.
+////////////////////////////////////////////////////////////////////
+INLINE ChatBalloon *NametagGlobals::
+get_exclaim_balloon_3d() {
+  return _exclaim_balloon_3d;
 }
 
 ////////////////////////////////////////////////////////////////////
