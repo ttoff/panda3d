@@ -63,6 +63,8 @@ private:
 
   bool _has_frame;
   LVecBase4f _frame;
+  // Offline exclusive:
+  float _scale_adj;
 
 public:
   // Statistics
@@ -95,4 +97,3 @@ private:
 #include "nametag3d.I"
 
 #endif
-

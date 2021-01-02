@@ -66,6 +66,8 @@ Nametag3d() :
   _has_frame = false;
   _frame.set(0.0f, 0.0f, 0.0f, 0.0f);
 
+  _scale_adj = 1.0f;
+
   // We set up the Nametag3d node with a phantom bounding volume, a
   // sphere with radius 2.0.  This is likely to include most of what
   // would appear within the Nametag3d itself, thus guaranteeing that
@@ -229,11 +231,13 @@ update_contents() {
   _current_contents = determine_contents();
 
   if (is_group_managed()) {
+    _scale_adj = 1.0f;
     if ((_current_contents & C_speech) != 0) {
       generate_chat(NametagGlobals::get_speech_balloon_3d());
     } else if ((_current_contents & C_thought) != 0) {
       generate_chat(NametagGlobals::get_thought_balloon_3d());
     } else if ((_current_contents & C_exclaim) != 0) {
+      _scale_adj = 1.25f;
       generate_chat(NametagGlobals::get_exclaim_balloon_3d());
     } else if ((_current_contents & C_name) != 0) {
       generate_name();
@@ -530,7 +534,8 @@ adjust_to_camera(const NodePath &this_np, int bin_sort) {
 
   float norm_distance = std::max(distance, 0.1f) / NametagGlobals::far_distance;
   float scale = pow(norm_distance, NametagGlobals::scale_exponent) *
-    NametagGlobals::far_scale * NametagGlobals::get_global_nametag_scale();
+    NametagGlobals::far_scale * NametagGlobals::get_global_nametag_scale()
+    * _scale_adj;
 
   if (_billboard_offset != 0.0f) {
     // Also slide the geometry towards the camera according to the

@@ -42,6 +42,8 @@ PUBLISHED:
                          bool for_3d, bool has_draw_order, int draw_order,
                          const NodePath &page_button, bool space_for_button,
                          bool reversed, NodePath &new_button);
+  // Offline exclusive:
+  INLINE void set_hscale(float hscale);
 
 public:
   INLINE float get_hscale() const;

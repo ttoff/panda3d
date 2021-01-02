@@ -50,7 +50,7 @@ Nametag::
 ~Nametag() {
   // The group had better be NULL by the time we destruct, or
   // something's pretty screwed up.
-  // nassertv(_group == (NametagGroup *)NULL);
+  nassertv(_group == (NametagGroup *)NULL);
 }
 
 ////////////////////////////////////////////////////////////////////

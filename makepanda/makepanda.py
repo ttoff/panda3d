@@ -4999,8 +4999,8 @@ if (PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0):
 
     # NOTE: Having makepanda call Bison and Flex on the parser/lexer brakes
     # them for some reason, we're gonna have to build the prebuilt files for now
-    TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input= 'dnaParser.cxx')
-    TargetAdd('p3toontown_dnaLexer.obj', opts=OPTS, input= 'dnaLexer.cxx')
+    TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input='dnaParser.cxx')
+    TargetAdd('p3toontown_dnaLexer.obj', opts=OPTS, input='dnaLexer.cxx')
 
     # OPTS = ['DIR:panda/src/toontown', 'BUILDING:TOONTOWN', 'BISONPREFIX_dnayy']
     # TargetAdd('p3toontown_dnaParser.obj', opts=OPTS, input='dnaParser.yxx')
