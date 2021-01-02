@@ -36,7 +36,7 @@ get_nametag3d() {
 //               font.
 ////////////////////////////////////////////////////////////////////
 INLINE void NametagGroup::
-set_font(TextFont *font, bool set_chat_font) {
+set_font(TextFont *font, bool set_chat_font /*= true*/) {
   _name_font = font;
   if (set_chat_font) {
     _chat_font = font;
