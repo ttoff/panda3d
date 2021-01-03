@@ -27,6 +27,7 @@ NametagGroup::
 NametagGroup() {
   _name_icon = NodePath("icon");
   _name_wordwrap = -1.0f;
+  _custom_color = LColorf(0.0f, 0.0f, 0.0f, 1.0f);
   _color_code = CC_normal;
   _qt_color = NametagGlobals::default_qt_color;
   _balloon_modulation_color = NametagGlobals::get_balloon_modulation_color();
@@ -247,6 +248,20 @@ set_color_code(ColorCode code) {
 }
 
 ////////////////////////////////////////////////////////////////////
+//     Function: NametagGroup::set_color_code
+//       Access: Published
+//  Description: Sets the custom color of this particular avatar.  This
+//               indicates color the nametag should be drawn in, according
+//               to the avatar's properties.
+////////////////////////////////////////////////////////////////////
+void NametagGroup::
+set_custom_color(LColorf color) {
+  _custom_color = color;
+
+  update_contents_all();
+}
+
+////////////////////////////////////////////////////////////////////
 //     Function: NametagGroup::set_display_name
 //       Access: Published
 //  Description: Changes the name displayed by all the nametags in
@@ -312,6 +327,7 @@ set_chat(const std::string &chat, int chat_flags, int page_number) {
     // Chat flags 0, or empty chat message: no chat message.
     _chat_pages.clear();
     _chat_flags = 0;
+    _chat_stomp_accum = 0;
 
   }
   else {
@@ -499,7 +515,6 @@ update_regions() {
   if ((_chat_flags & CF_timeout) != 0) {
     if (now >= _chat_timeout) {
       clear_chat();
-      _chat_stomp_accum = 0;
     }
   }
 

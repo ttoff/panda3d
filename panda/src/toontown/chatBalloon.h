@@ -44,8 +44,6 @@ PUBLISHED:
                          bool reversed, NodePath &new_button);
   // Offline exclusive:
   INLINE void set_hscale(float hscale);
-
-public:
   INLINE float get_hscale() const;
   INLINE float get_text_height() const;
   INLINE const LVecBase4f &get_text_frame() const;

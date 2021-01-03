@@ -46,8 +46,8 @@ PUBLISHED:
   NametagGroup();
   ~NametagGroup();
 
-  INLINE Nametag2d *get_nametag2d();
-  INLINE Nametag3d *get_nametag3d();
+  INLINE PT(Nametag2d) get_nametag2d();
+  INLINE PT(Nametag3d) get_nametag3d();
 
   void add_nametag(Nametag *tag);
   void remove_nametag(Nametag *tag);
@@ -72,6 +72,10 @@ PUBLISHED:
 
   void set_color_code(ColorCode code);
   INLINE ColorCode get_color_code() const;
+
+  // Offline exclusive
+  void set_custom_color(LColorf color);
+  INLINE LColorf get_custom_color() const;
 
   INLINE void set_qt_color(const LColorf &color);
   INLINE const LColorf &get_qt_color() const;
@@ -167,6 +171,8 @@ private:
 
   float _name_wordwrap;
   ColorCode _color_code;
+  // Offline exclusive
+  LColorf _custom_color;
   LColorf _qt_color;
   LColorf _balloon_modulation_color;
   LVecBase2f _shadow_offset;

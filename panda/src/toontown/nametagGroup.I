@@ -12,7 +12,7 @@
 //               along the edge of the screen when the avatar is not
 //               visible.
 ////////////////////////////////////////////////////////////////////
-INLINE Nametag2d *NametagGroup::
+INLINE PT(Nametag2d) NametagGroup::
 get_nametag2d() {
   return _nametag2d;
 }
@@ -24,7 +24,7 @@ get_nametag2d() {
 //               the group.  This is the Nametag that floats over the
 //               avatar's head in the world.
 ////////////////////////////////////////////////////////////////////
-INLINE Nametag3d *NametagGroup::
+INLINE PT(Nametag3d) NametagGroup::
 get_nametag3d() {
   return _nametag3d;
 }
@@ -136,6 +136,17 @@ get_name_icon() {
 INLINE NametagGroup::ColorCode NametagGroup::
 get_color_code() const {
   return _color_code;
+}
+
+////////////////////////////////////////////////////////////////////
+//     Function: NametagGroup::get_custom_color
+//       Access: Published
+//  Description: Returns the custom color set for this particular
+//               avatar.  See set_custom_color().
+////////////////////////////////////////////////////////////////////
+INLINE LColorf NametagGroup::
+get_custom_color() const {
+  return _custom_color;
 }
 
 ////////////////////////////////////////////////////////////////////
