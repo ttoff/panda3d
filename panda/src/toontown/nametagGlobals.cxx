@@ -166,7 +166,7 @@ Colors(const LColorf &name_fg, const LColorf &name_bg,
 
 static const int num_button_states = 4;
 static const int num_color_codes = 9;
-static const int num_whisper_types = 6;
+static const int num_whisper_types = 9;
 
 // The following defines the table of colors for the Nametags in
 // various states.
@@ -525,12 +525,17 @@ static NametagGlobals::Colors toontown_boarding_group_colors[num_button_states] 
 };
 
 static NametagGlobals::Colors *whisper_color_table[num_whisper_types] = {
-  whisper_colors,      // WT_normal
-  whisper_colors,      // WT_quick_talker
-  system_colors,       // WT_system
-  system_colors,       // WT_battle_SOS
-  emote_whisper_colors, // WT_emote
-  toontown_boarding_group_colors //WT_toontown_boarding_group
+  whisper_colors,                // WT_normal
+  whisper_colors,                // WT_quick_talker
+  system_colors,                 // WT_system
+  system_colors,                 // WT_battle_SOS
+  emote_whisper_colors,          // WT_emote
+  toontown_boarding_group_colors, //WT_toontown_boarding_group
+  // Offline exclusive:
+  // TODO: Convert the colors
+  system_colors,                // WT_magic_word
+  system_colors,                // WT_global
+  system_colors                 // WT_announcement
 };
 
 LColorf NametagGlobals::balloon_modulation_color;

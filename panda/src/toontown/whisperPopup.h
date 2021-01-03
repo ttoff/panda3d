@@ -38,7 +38,11 @@ PUBLISHED:
     WT_system,
     WT_battle_SOS,
     WT_emote,
-	WT_toontown_boarding_group
+    WT_toontown_boarding_group,
+    // Offline exclusive:
+    WT_magic_word,
+    WT_global,
+    WT_announcement
   };
 
   WhisperPopup(const std::string &text, TextFont *font, WhisperType whisper_type);
