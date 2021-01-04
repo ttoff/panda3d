@@ -524,18 +524,98 @@ static NametagGlobals::Colors toontown_boarding_group_colors[num_button_states] 
                          LColorf(0.97f, 0.43f, 0.1f, 0.6f)),  // chat bg
 };
 
+// Magic Word Whisper Messages.
+static NametagGlobals::Colors magic_word_colors[num_button_states] = {
+  // Magic Word, not selected.
+  NametagGlobals::Colors(LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // name fg
+                         LColorf(0.8f, 0.8f, 0.8f, 0.5f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.6f, 0.0f, 0.8f, 0.6f)),  // chat bg
+
+  // Magic Word, clicked.
+  NametagGlobals::Colors(LColorf(0.5f, 0.5f, 0.5f, 1.0f),   // name fg
+                         LColorf(0.2f, 0.2f, 0.2f, 0.6f),   // name bg
+                         LColorf(1.0f, 0.5f, 0.5f, 1.0f),   // chat fg
+                         LColorf(1.0f, 1.0f, 1.0f, 1.0f)),  // chat bg
+
+  // Magic Word, rollover.
+  NametagGlobals::Colors(LColorf(0.5f, 0.5f, 0.5f, 1.0f),   // name fg
+                         LColorf(1.0f, 1.0f, 1.0f, 1.0f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.8f, 0.6f, 0.4f, 0.6f)),  // chat bg
+
+  // Magic Word, inactive.
+  NametagGlobals::Colors(LColorf(0.3f, 0.3f, 0.3f, 1.0f),   // name fg
+                         LColorf(0.8f, 0.8f, 0.8f, 0.5f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.6f, 0.2f, 1.0f, 0.6f)),  // chat bg
+};
+
+// Global Chat Whisper Messages.
+static NametagGlobals::Colors global_colors[num_button_states] = {
+  // Global Chat, not selected.
+  NametagGlobals::Colors(LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // name fg
+                         LColorf(0.8f, 0.8f, 0.8f, 0.5f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.3f, 0.6f, 0.8f, 0.6f)),  // chat bg
+
+  // Global Chat, clicked.
+  NametagGlobals::Colors(LColorf(0.5f, 0.5f, 0.5f, 1.0f),   // name fg
+                         LColorf(0.2f, 0.2f, 0.2f, 0.6f),   // name bg
+                         LColorf(1.0f, 0.5f, 0.5f, 1.0f),   // chat fg
+                         LColorf(1.0f, 1.0f, 1.0f, 1.0f)),  // chat bg
+
+  // Global Chat, rollover.
+  NametagGlobals::Colors(LColorf(0.5f, 0.5f, 0.5f, 1.0f),   // name fg
+                         LColorf(1.0f, 1.0f, 1.0f, 1.0f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.4f, 1.0f, 1.0f, 0.4f)),  // chat bg
+
+  // Global Chat, inactive.
+  NametagGlobals::Colors(LColorf(0.3f, 0.3f, 0.3f, 1.0f),   // name fg
+                         LColorf(0.8f, 0.8f, 0.8f, 0.5f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.3f, 0.3f, 0.8f, 0.6f)),  // chat bg
+};
+
+// Announcement Whisper Messages.
+static NametagGlobals::Colors announcement_colors[num_button_states] = {
+  // Announcement, not selected.
+  NametagGlobals::Colors(LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // name fg
+                         LColorf(0.8f, 0.8f, 0.8f, 0.5f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.8f, 0.3f, 0.6f, 0.6f)),  // chat bg
+
+  // Announcement, clicked.
+  NametagGlobals::Colors(LColorf(0.5f, 0.5f, 0.5f, 1.0f),   // name fg
+                         LColorf(0.2f, 0.2f, 0.2f, 0.6f),   // name bg
+                         LColorf(1.0f, 0.5f, 0.5f, 1.0f),   // chat fg
+                         LColorf(1.0f, 1.0f, 1.0f, 1.0f)),  // chat bg
+
+  // Announcement, rollover.
+  NametagGlobals::Colors(LColorf(0.5f, 0.5f, 0.5f, 1.0f),   // name fg
+                         LColorf(1.0f, 1.0f, 1.0f, 1.0f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.8f, 0.4f, 1.0f, 1.0f)),  // chat bg
+
+  // Announcement, inactive.
+  NametagGlobals::Colors(LColorf(0.3f, 0.3f, 0.3f, 1.0f),   // name fg
+                         LColorf(0.8f, 0.8f, 0.8f, 0.5f),   // name bg
+                         LColorf(0.0f, 0.0f, 0.0f, 1.0f),   // chat fg
+                         LColorf(0.8f, 0.3f, 0.6f, 0.6f)),  // chat bg
+};
+
 static NametagGlobals::Colors *whisper_color_table[num_whisper_types] = {
-  whisper_colors,                // WT_normal
-  whisper_colors,                // WT_quick_talker
-  system_colors,                 // WT_system
-  system_colors,                 // WT_battle_SOS
-  emote_whisper_colors,          // WT_emote
-  toontown_boarding_group_colors, //WT_toontown_boarding_group
+  whisper_colors,                 // WT_normal
+  whisper_colors,                 // WT_quick_talker
+  system_colors,                  // WT_system
+  system_colors,                  // WT_battle_SOS
+  emote_whisper_colors,           // WT_emote
+  toontown_boarding_group_colors, // WT_toontown_boarding_group
   // Offline exclusive:
-  // TODO: Convert the colors
-  system_colors,                // WT_magic_word
-  system_colors,                // WT_global
-  system_colors                 // WT_announcement
+  magic_word_colors,              // WT_magic_word
+  global_colors,                  // WT_global
+  announcement_colors             // WT_announcement
 };
 
 LColorf NametagGlobals::balloon_modulation_color;
