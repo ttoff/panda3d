@@ -388,6 +388,28 @@ get_exclaim_balloon_3d() {
 }
 
 ////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::set_retro_mode
+//       Access: Published, Static
+//  Description: Changes the global flag to enable Retro mode
+//               (old nametag colors).
+////////////////////////////////////////////////////////////////////
+INLINE void NametagGlobals::
+set_retro_mode(bool active) {
+  _retro_mode = active;
+}
+
+////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::get_retro_mode
+//       Access: Published, Static
+//  Description: Returns the global flag to to see if Retro Mode
+//               is enabled. See set_retro_mode().
+////////////////////////////////////////////////////////////////////
+INLINE bool NametagGlobals::
+get_retro_mode() {
+  return _retro_mode;
+}
+
+////////////////////////////////////////////////////////////////////
 //     Function: NametagGlobals::set_master_nametags_active
 //       Access: Published, Static
 //  Description: Changes the global flag to disable all Nametags at

@@ -70,6 +70,7 @@ PUBLISHED:
   INLINE static void set_thought_balloon_2d(ChatBalloon *balloon);
   INLINE static ChatBalloon *get_thought_balloon_2d();
 
+  // Offline exclusive:
   INLINE static void set_exclaim_balloon_2d(ChatBalloon *balloon);
   INLINE static ChatBalloon *get_exclaim_balloon_2d();
 
@@ -79,8 +80,13 @@ PUBLISHED:
   INLINE static void set_thought_balloon_3d(ChatBalloon *balloon);
   INLINE static ChatBalloon *get_thought_balloon_3d();
 
+  // Offline exclusive:
   INLINE static void set_exclaim_balloon_3d(ChatBalloon *balloon);
   INLINE static ChatBalloon *get_exclaim_balloon_3d();
+
+  // Offline exclusive:
+  INLINE static void set_retro_mode(bool active);
+  INLINE static bool get_retro_mode();
 
   INLINE static void set_master_nametags_active(bool active);
   INLINE static bool get_master_nametags_active();
@@ -199,6 +205,9 @@ private:
   static PT(ChatBalloon) _speech_balloon_3d;
   static PT(ChatBalloon) _thought_balloon_3d;
   static PT(ChatBalloon) _exclaim_balloon_3d;
+
+  // Offline exclusive:
+  static bool _retro_mode;
 
   static bool _master_nametags_active;
   static bool _master_nametags_visible;

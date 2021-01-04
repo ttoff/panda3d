@@ -134,6 +134,8 @@ PT(ChatBalloon) NametagGlobals::_speech_balloon_3d;
 PT(ChatBalloon) NametagGlobals::_thought_balloon_3d;
 PT(ChatBalloon) NametagGlobals::_exclaim_balloon_3d;
 
+bool NametagGlobals::_retro_mode = false;
+
 bool NametagGlobals::_master_nametags_active = true;
 bool NametagGlobals::_master_nametags_visible =
   ConfigVariableBool("nametags-visible", true,
@@ -643,6 +645,12 @@ const LColorf &NametagGlobals::
 get_arrow_color(NametagGroup::ColorCode color_code) {
   nassertr((int)color_code >= 0 && (int)color_code < num_color_codes,
            arrow_colors[0]);
+  if (_retro_mode) {
+    // The arrow colors are different if we are in Retro Mode
+    if ((color_code == 7 /*CC_speed_chat*/) | (color_code == 8 /*CC_free_chat*/)) {
+      color_code = (NametagGroup::ColorCode)0; // CC_normal
+    }
+  }
   return arrow_colors[color_code];
 }
 
@@ -656,6 +664,14 @@ const NametagGlobals::Colors &NametagGlobals::
 get_colors(NametagGroup::ColorCode color_code, PGButton::State state) {
   nassertr((int)color_code >= 0 && (int)color_code < num_color_codes,
            color_table[0][0]);
+  if (_retro_mode) {
+    // The nametag colors used to be different if we are in Retro Mode
+    if ((color_code == 1 /*CC_no_chat*/) | (color_code == 2  /*CC_non_player*/)) {
+      color_code = (NametagGroup::ColorCode)7; // CC_speed_chat
+    } else if (color_code == 7) { // CC_speed_chat
+      color_code = (NametagGroup::ColorCode)1; // CC_no_chat
+    }
+  }
   nassertr((int)state >= 0 && (int)state < num_button_states,
            color_table[0][0]);
   return color_table[color_code][state];
