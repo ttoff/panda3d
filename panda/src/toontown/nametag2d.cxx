@@ -362,8 +362,17 @@ generate_name() {
   const NametagGlobals::Colors &colors =
     NametagGlobals::get_colors(group->get_color_code(), Nametag::get_state());
 
-  LColorf text_color = colors._name_fg;
+  LColorf text_color;
   LColorf card_color = colors._name_bg;
+
+  LColorf custom_color = group->get_custom_color();
+  if (custom_color != LColorf(0.0f, 0.0f, 0.0f, 1.0f)) {
+    // If we have a custom nametag color, use that instead.
+    text_color = custom_color;
+  } else {
+    text_color = colors._name_fg;
+  }
+
   card_color[3] =
     std::max(std::min(card_color[3], NametagGlobals::get_max_2d_alpha()),
         NametagGlobals::get_min_2d_alpha());
@@ -453,11 +462,16 @@ generate_name() {
     _arrow_center.set(0.0f, 0.0f, frame[2] - NametagGlobals::arrow_offset);
     _arrow_center = _arrow_center * mat;
 
-    LColorf arrow_color =
-      NametagGlobals::get_arrow_color(group->get_color_code());
-    _arrow.set_color(arrow_color);
-    if (arrow_color[3] != 1.0f) {
-      _arrow.set_transparency(TransparencyAttrib::M_alpha);
+    if (custom_color != LColorf(0.0f, 0.0f, 0.0f, 1.0f)) {
+      // If we have a custom nametag color, use that instead
+      _arrow.set_color(custom_color);
+    } else {
+      LColorf arrow_color =
+        NametagGlobals::get_arrow_color(group->get_color_code());
+      _arrow.set_color(arrow_color);
+      if (arrow_color[3] != 1.0f) {
+        _arrow.set_transparency(TransparencyAttrib::M_alpha);
+      }
     }
 
     rotate_arrow();

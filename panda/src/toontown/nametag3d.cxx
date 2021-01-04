@@ -292,8 +292,16 @@ generate_name() {
   const NametagGlobals::Colors &colors =
     NametagGlobals::get_colors(group->get_color_code(), Nametag::get_state());
 
-  LColorf text_color = colors._name_fg;
+  LColorf text_color;
   LColorf card_color = colors._name_bg;
+
+  LColorf custom_color = group->get_custom_color();
+  if (custom_color != LColorf(0.0f, 0.0f, 0.0f, 1.0f)) {
+    // If we have a custom nametag color, use that instead.
+    text_color = custom_color;
+  } else {
+    text_color = colors._name_fg;
+  }
 
   // Get the size of the generated name, and expand it a bit to make
   // the card aesthetically pleasing.
