@@ -5951,6 +5951,7 @@ if (PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0):
     TargetAdd('libp3toontown.dll', input='toontown_composite.obj')
     TargetAdd('libp3toontown.dll', input='p3toontown_dnaParser.obj')
     TargetAdd('libp3toontown.dll', input='p3toontown_dnaLexer.obj')
+    TargetAdd('libp3toontown.dll', input='libp3direct.dll')
     TargetAdd('libp3toontown.dll', input=COMMON_PANDA_LIBS)
     TargetAdd('libp3toontown.dll', opts=OPTS)
 
