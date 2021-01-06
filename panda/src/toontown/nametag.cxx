@@ -167,7 +167,7 @@ determine_contents() {
   if (has_group()) {
     NametagGroup *group = get_group();
 
-    if (group->is_managed()) {
+    if (group->is_managed() && NametagGlobals::get_master_nametags_visible()) {
       int contents = get_contents() & group->get_contents();
 
       int chat_flags = group->get_chat_flags();
@@ -192,8 +192,7 @@ determine_contents() {
       if (current_contents == 0) {
         // We aren't displaying either kind of chat; can we display a
         // name?
-        if ((contents & C_name) != 0 && !group->get_name().empty() &&
-            NametagGlobals::get_master_nametags_visible()) {
+        if ((contents & C_name) != 0 && !group->get_name().empty()) {
           current_contents = C_name;
         }
       }
