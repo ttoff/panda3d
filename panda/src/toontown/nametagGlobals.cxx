@@ -135,6 +135,7 @@ PT(ChatBalloon) NametagGlobals::_thought_balloon_3d;
 PT(ChatBalloon) NametagGlobals::_exclaim_balloon_3d;
 
 bool NametagGlobals::_retro_mode = false;
+NodePath NametagGlobals::_aspect2d;
 
 bool NametagGlobals::_master_nametags_active = true;
 bool NametagGlobals::_master_nametags_visible =
@@ -647,7 +648,7 @@ get_arrow_color(NametagGroup::ColorCode color_code) {
            arrow_colors[0]);
   if (_retro_mode) {
     // The arrow colors are different if we are in Retro Mode
-    if ((color_code == 7 /*CC_speed_chat*/) | (color_code == 8 /*CC_free_chat*/)) {
+    if ((color_code == 7 /*CC_speed_chat*/) || (color_code == 8 /*CC_free_chat*/)) {
       color_code = (NametagGroup::ColorCode)0; // CC_normal
     }
   }
@@ -666,7 +667,7 @@ get_colors(NametagGroup::ColorCode color_code, PGButton::State state) {
            color_table[0][0]);
   if (_retro_mode) {
     // The nametag colors used to be different if we are in Retro Mode
-    if ((color_code == 1 /*CC_no_chat*/) | (color_code == 2  /*CC_non_player*/)) {
+    if ((color_code == 1 /*CC_no_chat*/) || (color_code == 2  /*CC_non_player*/)) {
       color_code = (NametagGroup::ColorCode)7; // CC_speed_chat
     } else if (color_code == 7) { // CC_speed_chat
       color_code = (NametagGroup::ColorCode)1; // CC_no_chat

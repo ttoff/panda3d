@@ -164,6 +164,12 @@ cull_callback(CullTraverser *, CullTraverserData &data) {
       int bin_sort = CullBinManager::get_global_ptr()->get_bin_sort(bin_index);
 
       adjust_to_camera(this_np, bin_sort);
+
+      const NodePath &aspect2d = NametagGlobals::get_aspect2d();
+      if (aspect2d.is_hidden()) {
+        group->update_regions();
+      }
+
     }
   }
 

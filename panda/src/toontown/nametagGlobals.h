@@ -88,6 +88,9 @@ PUBLISHED:
   INLINE static void set_retro_mode(bool active);
   INLINE static bool get_retro_mode();
 
+  INLINE static void set_aspect2d(const NodePath &node);
+  INLINE static const NodePath &get_aspect2d();
+
   INLINE static void set_master_nametags_active(bool active);
   INLINE static bool get_master_nametags_active();
 
@@ -208,6 +211,7 @@ private:
 
   // Offline exclusive:
   static bool _retro_mode;
+  static NodePath _aspect2d;
 
   static bool _master_nametags_active;
   static bool _master_nametags_visible;

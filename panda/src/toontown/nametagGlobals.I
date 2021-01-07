@@ -410,6 +410,26 @@ get_retro_mode() {
 }
 
 ////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::set_aspect2d
+//       Access: Published, Static
+//  Description: Sets the pointer to Python ShowBase's aspect2d node.
+////////////////////////////////////////////////////////////////////
+INLINE void NametagGlobals::
+set_aspect2d(const NodePath &node) {
+  _aspect2d = node;
+}
+
+////////////////////////////////////////////////////////////////////
+//     Function: NametagGlobals::get_aspect2d
+//       Access: Published, Static
+//  Description: Gets the pointer to Python ShowBase's aspect2d node.
+////////////////////////////////////////////////////////////////////
+INLINE const NodePath &NametagGlobals::
+get_aspect2d() {
+  return _aspect2d;
+}
+
+////////////////////////////////////////////////////////////////////
 //     Function: NametagGlobals::set_master_nametags_active
 //       Access: Published, Static
 //  Description: Changes the global flag to disable all Nametags at

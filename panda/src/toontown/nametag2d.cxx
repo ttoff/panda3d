@@ -245,7 +245,8 @@ frame_callback() {
   // that the Nametag2d's consider_visible() function gets called
   // exactly once each frame, and ideally towards the end of the
   // frame.
-  if (has_group()) {
+  const NodePath &aspect2d = NametagGlobals::get_aspect2d();
+  if (has_group() && !aspect2d.is_hidden()) {
     NametagGroup *group = get_group();
     group->update_regions();
   }
