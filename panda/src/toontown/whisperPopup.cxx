@@ -92,6 +92,19 @@ void WhisperPopup::
 manage(MarginManager *manager) {
   nassertv(!is_managed());
   manager->manage_popup(this);
+
+  // Offline exclusive:
+  // Add to chat log (gets handed by game logic):
+  // const NametagGlobals::Colors &colors =
+  //   NametagGlobals::get_whisper_colors(_whisper_type, ClickablePopup::get_state());
+  //
+  // LColorf balloon_color = colors._chat_bg;
+  // balloon_color[3] = 1.0f;
+
+  if (_whisper_type != WT_normal && _whisper_type != WT_global) {
+    throw_event("addChatHistory", 0, 0, 0, 8, _text, _whisper_type);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////

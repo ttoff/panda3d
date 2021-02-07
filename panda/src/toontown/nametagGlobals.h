@@ -44,6 +44,7 @@ PUBLISHED:
 
   INLINE static void set_arrow_model(const NodePath &node);
   INLINE static const NodePath &get_arrow_model();
+  static const LColorf &get_arrow_color(NametagGroup::ColorCode color_code);
 
   INLINE static void set_page_button(int state, const NodePath &node);
   INLINE static const NodePath &get_page_button(int state);
@@ -176,8 +177,6 @@ public:
     LColorf _chat_fg;
     LColorf _chat_bg;
   };
-
-  static const LColorf &get_arrow_color(NametagGroup::ColorCode color_code);
 
   static const Colors &get_colors(NametagGroup::ColorCode color_code,
                                   PGButton::State state);

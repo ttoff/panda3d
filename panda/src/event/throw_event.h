@@ -37,6 +37,19 @@ INLINE void throw_event(const std::string &event_name,
                         const EventParameter &p2,
                         const EventParameter &p3,
                         const EventParameter &p4);
+INLINE void throw_event(const std::string &event_name,
+                        const EventParameter &p1,
+                        const EventParameter &p2,
+                        const EventParameter &p3,
+                        const EventParameter &p4,
+                        const EventParameter &p5);
+INLINE void throw_event(const std::string &event_name,
+                        const EventParameter &p1,
+                        const EventParameter &p2,
+                        const EventParameter &p3,
+                        const EventParameter &p4,
+                        const EventParameter &p5,
+                        const EventParameter &p6);
 
 #include "eventHandler.h"
 

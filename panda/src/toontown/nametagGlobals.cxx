@@ -639,7 +639,7 @@ get_text_node() {
 
 ////////////////////////////////////////////////////////////////////
 //     Function: NametagGlobals::get_arrow_color
-//       Access: Public, Static
+//       Access: Published, Static
 //  Description: Returns the color to draw the little arrow.
 ////////////////////////////////////////////////////////////////////
 const LColorf &NametagGlobals::
