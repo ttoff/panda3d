@@ -334,6 +334,18 @@ get_slotted_function_def(Object *obj, Function *func, FunctionRemap *remap,
     return true;
   }
 
+  if (method_name == "__truediv__") {
+    def._answer_location = "nb_true_divide";
+    def._wrapper_type = WT_binary_operator;
+    return true;
+  }
+
+  if (method_name == "__floordiv__") {
+    def._answer_location = "nb_floor_divide";
+    def._wrapper_type = WT_binary_operator;
+    return true;
+  }
+
   if (method_name == "operator %") {
     def._answer_location = "nb_remainder";
     def._wrapper_type = WT_binary_operator;
@@ -403,6 +415,18 @@ get_slotted_function_def(Object *obj, Function *func, FunctionRemap *remap,
   if (method_name == "operator /=") {
     def._answer_location = "nb_inplace_divide";
     def._wrapper_type = WT_inplace_binary_operator;
+    return true;
+  }
+
+  if (method_name == "__itruediv__") {
+    def._answer_location = "nb_inplace_true_divide";
+    def._wrapper_type = WT_binary_operator;
+    return true;
+  }
+
+  if (method_name == "__ifloordiv__") {
+    def._answer_location = "nb_inplace_floor_divide";
+    def._wrapper_type = WT_binary_operator;
     return true;
   }
 
@@ -1693,10 +1717,12 @@ write_module_class(ostream &out, Object *obj) {
 
         // Python 3 doesn't support nb_divide.  It has nb_true_divide and also
         // nb_floor_divide, but they have different semantics than in C++.
-        // Ugh.  Make special slots to store the nb_divide members that take a
-        // float.  We'll use this to build up nb_true_divide, so that we can
-        // still properly divide float vector types.
-        if (remap->_flags & FunctionRemap::F_divide_float) {
+        // Ugh.  Make special slots to store the nb_divide members that don't
+        // take an int.  We'll use this to build up nb_true_divide, in the
+        // absence of a custom __truediv__, so that we can still properly divide
+        // float vector types.
+        if ((key == "nb_divide" || key == "nb_inplace_divide") &&
+            (remap->_flags & FunctionRemap::F_divide_integer) == 0) {
           string true_key;
           if (key == "nb_inplace_divide") {
             true_key = "nb_inplace_true_divide";
@@ -3637,18 +3663,23 @@ write_function_for_name(ostream &out, Object *obj,
     std::string ClassName = make_safe_name(obj->_itype.get_scoped_name());
     std::string cClassName = obj->_itype.get_true_name();
     // string class_name = remap->_cpptype->get_simple_name();
+    CPPStructType *struct_type = obj->_itype._cpptype->as_struct_type();
 
     // If this is a non-static __setstate__, we run the default constructor.
-    if (remap->_cppfunc->get_local_name() == "__setstate__") {
-      out << "  if (DtoolInstance_VOID_PTR(self) != nullptr) {\n"
-          << "    Dtool_Raise_TypeError(\"C++ object is already constructed.\");\n";
-      error_return(out, 4, return_flags);
-      out << "  }\n"
-          << "  " << cClassName << " *local_this = new " << cClassName << ";\n"
-          << "  DTool_PyInit_Finalize(self, local_this, &Dtool_" << ClassName
-          << ", false, false);\n"
-          << "  if (local_this == nullptr) {\n"
-          << "    PyErr_NoMemory();\n";
+    if (remap->_cppfunc->get_local_name() == "__setstate__" &&
+        !struct_type->is_abstract()) {
+      out << "  " << cClassName << " *local_this = nullptr;\n"
+          << "  if (DtoolInstance_VOID_PTR(self) == nullptr) {\n"
+          << "    local_this = new " << cClassName << ";\n"
+          << "    DTool_PyInit_Finalize(self, local_this, &Dtool_" << ClassName
+          << ", true, false);\n"
+          << "    if (local_this == nullptr) {\n"
+          << "      PyErr_NoMemory();\n";
+      error_return(out, 6, return_flags);
+      out << "    }\n"
+          << "  } else if (!Dtool_Call_ExtractThisPointer_NonConst(self, Dtool_" << ClassName << ", "
+          << "(void **)&local_this, \"" << classNameFromCppName(cClassName, false)
+          << "." << methodNameFromCppName(remap, cClassName, false) << "\")) {\n";
     }
     else if (all_nonconst) {
       // All remaps are non-const.  Also check that this object isn't const.
@@ -3682,6 +3713,14 @@ write_function_for_name(ostream &out, Object *obj,
       methodNameFromCppName(remap, "", false) + "() takes no keyword arguments");
     out << "#endif\n";
     out << "  }\n";
+    args_type = AT_varargs;
+  }
+
+  // If this is a __setstate__ taking multiple arguments, and we're given a
+  // tuple as argument, unpack it.
+  if (args_type == AT_single_arg && max_required_args > 1 &&
+      remap->_cppfunc->get_local_name() == "__setstate__") {
+    out << "  PyObject *args = arg;\n";
     args_type = AT_varargs;
   }
 

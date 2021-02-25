@@ -31,42 +31,6 @@ class Loader(DirectObject):
         # This indicates that this class behaves like a Future.
         _asyncio_future_blocking = False
 
-        class _ResultAwaiter(object):
-            """Reinvents generators because of PEP 479, sigh.  See #513."""
-
-            __slots__ = 'requestList', 'index'
-
-            def __init__(self, requestList):
-                self.requestList = requestList
-                self.index = 0
-
-            def __await__(self):
-                return self
-
-            def __anext__(self):
-                if self.index >= len(self.requestList):
-                    raise StopAsyncIteration
-                return self
-
-            def __iter__(self):
-                return self
-
-            def __next__(self):
-                i = self.index
-                request = self.requestList[i]
-                if not request.done():
-                    return request
-
-                self.index = i + 1
-
-                result = request.result()
-                if isinstance(result, PandaNode):
-                    result = NodePath(result)
-
-                exc = StopIteration(result)
-                exc.value = result
-                raise exc
-
         def __init__(self, loader, numObjects, gotList, callback, extraArgs):
             self._loader = loader
             self.objects = [None] * numObjects
@@ -124,13 +88,15 @@ class Loader(DirectObject):
 
             if self.requests:
                 self._asyncio_future_blocking = True
+                while self.requests:
+                    yield self
 
             if self.gotList:
-                return self._ResultAwaiter([self])
+                return self.objects
             else:
-                return self._ResultAwaiter(self.requestList)
+                return self.objects[0]
 
-        def __aiter__(self):
+        async def __aiter__(self):
             """ This allows using `async for` to iterate asynchronously over
             the results of this class.  It does guarantee to return the
             results in order, though, even though they may not be loaded in
@@ -138,7 +104,8 @@ class Loader(DirectObject):
             requestList = self.requestList
             assert requestList is not None, "Request was cancelled."
 
-            return self._ResultAwaiter(requestList)
+            for req in requestList:
+                yield await req
 
     # special methods
     def __init__(self, base):
@@ -444,7 +411,7 @@ class Loader(DirectObject):
             nodeList = node
             gotList = True
 
-        assert(len(modelList) == len(nodeList))
+        assert len(modelList) == len(nodeList)
 
         # Make sure we have PandaNodes, not NodePaths.
         for i in range(len(nodeList)):
@@ -627,7 +594,7 @@ class Loader(DirectObject):
         assert Loader.notify.debug("Loading font: %s" % (modelPath))
         if phaseChecker:
             loaderOptions = LoaderOptions()
-            if(okMissing):
+            if okMissing:
                 loaderOptions.setFlags(loaderOptions.getFlags() & ~LoaderOptions.LFReportErrors)
             phaseChecker(modelPath, loaderOptions)
 
@@ -958,7 +925,7 @@ class Loader(DirectObject):
         independently of the other group."""
 
         # showbase-created sfxManager should always be at front of list
-        if(self.base.sfxManagerList):
+        if self.base.sfxManagerList:
             return self.loadSound(self.base.sfxManagerList[0], *args, **kw)
         return None
 
@@ -970,7 +937,7 @@ class Loader(DirectObject):
         to load the sound file, but this distinction allows the sound
         effects and/or the music files to be adjusted as a group,
         independently of the other group."""
-        if(self.base.musicManager):
+        if self.base.musicManager:
             return self.loadSound(self.base.musicManager, *args, **kw)
         else:
             return None
@@ -1025,8 +992,8 @@ class Loader(DirectObject):
             return cb
 
     def unloadSfx(self, sfx):
-        if (sfx):
-            if(self.base.sfxManagerList):
+        if sfx:
+            if self.base.sfxManagerList:
                 self.base.sfxManagerList[0].uncacheSound (sfx.getName())
 
 ##     def makeNodeNamesUnique(self, nodePath, nodeCount):
@@ -1096,7 +1063,7 @@ class Loader(DirectObject):
         """ The asynchronous flatten operation has completed; quietly
         drop in the new models. """
         self.notify.debug("asyncFlattenDone: %s" % (models,))
-        assert(len(models) == len(origModelList))
+        assert len(models) == len(origModelList)
         for i in range(len(models)):
             origModelList[i].getChildren().detach()
             orig = origModelList[i].node()

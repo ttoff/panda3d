@@ -4,7 +4,6 @@ See the :ref:`distribution` section of the programming manual for information
 on how to use these commands.
 """
 
-import collections
 import os
 import plistlib
 import pkg_resources
@@ -17,7 +16,6 @@ import stat
 import struct
 import imp
 import string
-import time
 import tempfile
 
 import setuptools
@@ -96,6 +94,7 @@ PACKAGE_DATA_DIRS = {
         ('cefpython3/Chromium Embedded Framework.framework/Resources', 'Chromium Embedded Framework.framework/Resources', {}),
         ('cefpython3/Chromium Embedded Framework.framework/Chromium Embedded Framework', '', {'PKG_DATA_MAKE_EXECUTABLE'}),
     ],
+    'pytz': [('pytz/zoneinfo/*', 'zoneinfo', ())],
 }
 
 # Some dependencies have extra directories that need to be scanned for DLLs.
@@ -188,6 +187,7 @@ class build_apps(setuptools.Command):
         self.extra_prc_data = ''
         self.default_prc_dir = None
         self.log_filename = None
+        self.log_filename_strftime = True
         self.log_append = False
         self.requirements_path = os.path.join(os.getcwd(), 'requirements.txt')
         self.use_optimized_wheels = True
@@ -211,8 +211,10 @@ class build_apps(setuptools.Command):
             # manylinux1/linux
             'libdl.so.*', 'libstdc++.so.*', 'libm.so.*', 'libgcc_s.so.*',
             'libpthread.so.*', 'libc.so.*', 'ld-linux-x86-64.so.*',
-            'libgl.so.*', 'libx11.so.*', 'libreadline.so.*', 'libncursesw.so.*',
-            'libbz2.so.*', 'libz.so.*', 'liblzma.so.*', 'librt.so.*', 'libutil.so.*',
+            'libgl.so.*', 'libx11.so.*', 'libncursesw.so.*', 'libz.so.*',
+            'librt.so.*', 'libutil.so.*', 'libnsl.so.1', 'libXext.so.6',
+            'libXrender.so.1', 'libICE.so.6', 'libSM.so.6',
+            'libgobject-2.0.so.0', 'libgthread-2.0.so.0', 'libglib-2.0.so.0',
 
             # macOS
             '/usr/lib/libc++.1.dylib',
@@ -499,11 +501,7 @@ class build_apps(setuptools.Command):
             icon.makeICNS(os.path.join(resdir, 'iconfile.icns'))
 
         with open(os.path.join(contentsdir, 'Info.plist'), 'wb') as f:
-            if hasattr(plistlib, 'dump'):
-                plistlib.dump(plist, f)
-            else:
-                plistlib.writePlist(plist, f)
-
+            plistlib.dump(plist, f)
 
     def build_runtimes(self, platform, use_wheels):
         """ Builds the distributions for the given platform. """
@@ -713,6 +711,10 @@ class build_apps(setuptools.Command):
             else:
                 temp_file = None
 
+            use_strftime = self.log_filename_strftime
+            if not self.log_filename or '%' not in self.log_filename:
+                use_strftime = False
+
             freezer.generateRuntimeFromStub(target_path, stub_file, use_console, {
                 'prc_data': prcexport if self.embed_prc_data else None,
                 'default_prc_dir': self.default_prc_dir,
@@ -725,7 +727,7 @@ class build_apps(setuptools.Command):
                 'prc_executable_args_envvar': None,
                 'main_dir': None,
                 'log_filename': self.expand_path(self.log_filename, platform),
-            }, self.log_append)
+            }, self.log_append, use_strftime)
             stub_file.close()
 
             if temp_file:
@@ -982,6 +984,7 @@ class build_apps(setuptools.Command):
 
         rootdir = os.getcwd()
         for dirname, subdirlist, filelist in os.walk(rootdir):
+            subdirlist.sort()
             dirpath = os.path.relpath(dirname, rootdir)
             if skip_directory(dirpath):
                 self.announce('skipping directory {}'.format(dirpath))
