@@ -20,7 +20,9 @@ class DistributedLargeBlobSenderAI(DistributedObjectAI.DistributedObjectAI):
         self.generateWithRequired(zoneId)
 
         # send the data
-        s = str(data)
+        s = data
+        if isinstance(data, str):
+            s = s.encode('utf-8')
         if useDisk:
             # write the data to a file and tell the client where to get it
             import os
