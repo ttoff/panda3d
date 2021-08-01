@@ -821,15 +821,15 @@ class DirectSession(DirectObject):
             # If nothing specified, try selected node path
             nodePath = self.selected.last
         if nodePath:
-            if nodePath.hasColor():
-                doneColor = nodePath.getColor()
+            if nodePath.hasColorScale():
+                doneColor = nodePath.getColorScale()
                 flashColor = VBase4(1) - doneColor
                 flashColor.setW(1)
             else:
                 doneColor = None
                 flashColor = VBase4(1, 0, 0, 1)
             # Temporarily set node path color
-            nodePath.setColor(flashColor)
+            nodePath.setColorScale(flashColor)
             # Clean up color in a few seconds
             t = taskMgr.doMethodLater(DIRECT_FLASH_DURATION,
                                       # This is just a dummy task
@@ -850,9 +850,9 @@ class DirectSession(DirectObject):
             # Node path doesn't exist anymore, bail
             return
         if state.doneColor:
-            state.nodePath.setColor(state.doneColor)
+            state.nodePath.setColorScale(state.doneColor)
         else:
-            state.nodePath.clearColor()
+            state.nodePath.clearColorScale()
 
     def fitOnNodePath(self, nodePath = 'None Given'):
         if nodePath == 'None Given':
