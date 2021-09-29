@@ -57,6 +57,10 @@ class ParentMgr:
             self.pendingParentToken2children[parentToken].remove(child)
 
     def requestReparent(self, child, parentToken):
+        # Workaround for Astron sending strings as bytes
+        if isinstance(parentToken, bytes):
+            parentToken = parentToken.decode('utf-8')
+            
         if parentToken in self.token2nodepath:
             # this parent has registered
             # this child may already be waiting on a different parent;
