@@ -180,7 +180,7 @@ static LColorf arrow_colors[num_color_codes] = {
   LColorf(1.0f, 0.4f, 0.2f, 1.0f),   // CC_normal
   LColorf(1.0f, 0.4f, 0.2f, 1.0f),   // CC_no_chat
   LColorf(1.0f, 0.4f, 0.2f, 1.0f),   // CC_non_player
-  LColorf(1.0f, 0.4f, 0.2f, 1.0f),   // CC_suit
+  LColorf(0.2f, 0.2f, 0.2f, 1.0f),   // CC_suit
   LColorf(0.3f, 0.6f, 1.0f, 1.0f),   // CC_toon_building
   LColorf(0.55f, 0.55f, 0.55f, 1.0f),// CC_suit_building
   LColorf(0.3f, 0.6f, 1.0f, 1.0f),   // CC_house_building
@@ -647,8 +647,8 @@ get_arrow_color(NametagGroup::ColorCode color_code) {
   nassertr((int)color_code >= 0 && (int)color_code < num_color_codes,
            arrow_colors[0]);
   if (_retro_mode) {
-    // The arrow colors are different if we are in Retro Mode
-    if ((color_code == 7 /*CC_speed_chat*/) || (color_code == 8 /*CC_free_chat*/)) {
+    // These three arrows should be orange if we are in Retro Mode
+    if ((color_code == 7 /*CC_speed_chat*/) || (color_code == 8 /*CC_free_chat*/) || (color_code == 3 /*CC_Suit*/)) {
       color_code = (NametagGroup::ColorCode)0; // CC_normal
     }
   }
