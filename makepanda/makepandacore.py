@@ -3390,7 +3390,20 @@ def GetPythonABI():
         if soabi:
             return soabi
 
-    return 'cpython-%d%d' % (sys.version_info[:2])
+    soabi = 'cpython-%d%d' % (sys.version_info[:2])
+
+    if sys.version_info >= (3, 8):
+        return soabi
+
+    debug_flag = sysconfig.get_config_var('Py_DEBUG')
+    if (debug_flag is None and hasattr(sys, 'gettotalrefcount')) or debug_flag:
+        soabi += 'd'
+
+    malloc_flag = sysconfig.get_config_var('WITH_PYMALLOC')
+    if malloc_flag is None or malloc_flag:
+        soabi += 'm'
+
+    return soabi
 
 def CalcLocation(fn, ipath):
     if fn.startswith("panda3d/") and fn.endswith(".py"):
@@ -3532,7 +3545,7 @@ def UpdatePythonVersionInfoFile(new_info):
                version_info["soabi"] == new_info["soabi"] or \
                not os.path.isfile(core_pyd) or \
                version_info["version"].split(".", 1)[0] == "2" or \
-               version_info["version"] in ("3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7"):
+               version_info["version"] in ("3.0", "3.1", "3.2", "3.3", "3.4", "3.5"):
                 json_data.remove(version_info)
 
     if not PkgSkip("PYTHON"):
@@ -3557,7 +3570,7 @@ def ReadPythonVersionInfoFile():
 
         # Don't include unsupported versions of Python.
         for version_info in json_data[:]:
-            if version_info["version"] in ("2.6", "2.7", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7"):
+            if version_info["version"] in ("2.6", "2.7", "3.0", "3.1", "3.2", "3.3", "3.4"):
                 json_data.remove(version_info)
 
         return json_data

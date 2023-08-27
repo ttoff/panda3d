@@ -7,6 +7,7 @@ from direct.showbase.Job import Job
 from direct.showbase.JobManagerGlobal import jobMgr
 from direct.showbase.ContainerLeakDetector import deadEndTypes
 import types
+import sys
 import io
 
 
@@ -123,7 +124,7 @@ class ContainerReport(Job):
                 continue
 
             # types.CellType was added in Python 3.8
-            if type(parentObj) is types.CellType:
+            if sys.version_info >= (3, 8) and type(parentObj) is types.CellType:
                 child = parentObj.cell_contents
                 if self._examine(child):
                     assert (self._queue.back() is child)
