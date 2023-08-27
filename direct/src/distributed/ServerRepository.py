@@ -1,14 +1,47 @@
 """ServerRepository module: contains the ServerRepository class"""
 
-from panda3d.core import *
-from panda3d.direct import *
-from direct.distributed.MsgTypesCMU import *
+from panda3d.core import (
+    ConfigVariableBool,
+    ConfigVariableDouble,
+    ConfigVariableInt,
+    ConnectionWriter,
+    DatagramIterator,
+    Filename,
+    NetAddress,
+    NetDatagram,
+    PointerToConnection,
+    QueuedConnectionListener,
+    QueuedConnectionManager,
+    QueuedConnectionReader,
+    TPLow,
+    UniqueIdAllocator,
+    VirtualFileSystem,
+    getModelPath,
+)
+from panda3d.direct import DCFile
+from direct.distributed.MsgTypesCMU import (
+    CLIENT_DISCONNECT_CMU,
+    CLIENT_OBJECT_GENERATE_CMU,
+    CLIENT_OBJECT_UPDATE_FIELD,
+    CLIENT_OBJECT_UPDATE_FIELD_TARGETED_CMU,
+    CLIENT_SET_INTEREST_CMU,
+    OBJECT_DELETE_CMU,
+    OBJECT_DISABLE_CMU,
+    OBJECT_GENERATE_CMU,
+    OBJECT_SET_ZONE_CMU,
+    OBJECT_UPDATE_FIELD_CMU,
+    REQUEST_GENERATES_CMU,
+    SET_DOID_RANGE_CMU,
+)
 from direct.task import Task
 from direct.task.TaskManagerGlobal import taskMgr
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.PyDatagram import PyDatagram
 
 import inspect
+
+
+_server_doid_range = ConfigVariableInt('server-doid-range', 1000000)
 
 
 class ServerRepository:
@@ -134,7 +167,7 @@ class ServerRepository:
 
         # The number of doId's to assign to each client.  Must remain
         # constant during server lifetime.
-        self.doIdRange = base.config.GetInt('server-doid-range', 1000000)
+        self.doIdRange = _server_doid_range.value
 
         # An allocator object that assigns the next doIdBase to each
         # client.

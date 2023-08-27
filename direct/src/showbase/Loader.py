@@ -4,10 +4,28 @@ sound, music, shaders and fonts from disk.
 
 __all__ = ['Loader']
 
-from panda3d.core import *
+from panda3d.core import (
+    AudioLoadRequest,
+    ConfigVariableBool,
+    Filename,
+    FontPool,
+    LoaderFileTypeRegistry,
+    LoaderOptions,
+    ModelFlattenRequest,
+    ModelNode,
+    ModelPool,
+    NodePath,
+    PandaNode,
+    SamplerState,
+    ShaderPool,
+    StaticTextFont,
+    TexturePool,
+    VBase4,
+)
 from panda3d.core import Loader as PandaLoader
-from direct.directnotify.DirectNotifyGlobal import *
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
+import warnings
 
 # You can specify a phaseChecker callback to check
 # a modelPath to see if it is being loaded in the correct
@@ -295,7 +313,8 @@ class Loader(DirectObject):
         called after cancelRequest() has been performed.
 
         This is now deprecated: call cb.cancel() instead. """
-
+        if __debug__:
+            warnings.warn("This is now deprecated: call cb.cancel() instead.", DeprecationWarning, stacklevel=2)
         cb.cancel()
 
     def isRequestPending(self, cb):
@@ -304,7 +323,8 @@ class Loader(DirectObject):
         been cancelled.
 
         This is now deprecated: call cb.done() instead. """
-
+        if __debug__:
+            warnings.warn("This is now deprecated: call cb.done() instead.", DeprecationWarning, stacklevel=2)
         return bool(cb.requests)
 
     def loadModelOnce(self, modelPath):
@@ -315,7 +335,8 @@ class Loader(DirectObject):
         then attempt to load it from disk. Return a nodepath to
         the model if successful or None otherwise
         """
-        Loader.notify.info("loader.loadModelOnce() is deprecated; use loader.loadModel() instead.")
+        if __debug__:
+            warnings.warn("loader.loadModelOnce() is deprecated; use loader.loadModel() instead.", DeprecationWarning, stacklevel=2)
 
         return self.loadModel(modelPath, noCache = False)
 
@@ -326,7 +347,8 @@ class Loader(DirectObject):
         then attempt to load it from disk. Return a nodepath to
         a copy of the model if successful or None otherwise
         """
-        Loader.notify.info("loader.loadModelCopy() is deprecated; use loader.loadModel() instead.")
+        if __debug__:
+            warnings.warn("loader.loadModelCopy() is deprecated; use loader.loadModel() instead.", DeprecationWarning, stacklevel=2)
 
         return self.loadModel(modelPath, loaderOptions = loaderOptions, noCache = False)
 
@@ -344,7 +366,8 @@ class Loader(DirectObject):
 
         However, if you're loading a font, see loadFont(), below.
         """
-        Loader.notify.info("loader.loadModelNode() is deprecated; use loader.loadModel() instead.")
+        if __debug__:
+            warnings.warn("loader.loadModelNode() is deprecated; use loader.loadModel() instead.", DeprecationWarning, stacklevel=2)
 
         model = self.loadModel(modelPath, noCache = False)
         if model is not None:
@@ -414,9 +437,9 @@ class Loader(DirectObject):
         assert len(modelList) == len(nodeList)
 
         # Make sure we have PandaNodes, not NodePaths.
-        for i in range(len(nodeList)):
-            if isinstance(nodeList[i], NodePath):
-                nodeList[i] = nodeList[i].node()
+        for i, node in enumerate(nodeList):
+            if isinstance(node, NodePath):
+                nodeList[i] = node.node()
 
         # From here on, we deal with a list of (filename, node) pairs.
         modelList = list(zip(modelList, nodeList))
@@ -457,8 +480,8 @@ class Loader(DirectObject):
                 i += 1
             return cb
 
-
     # font loading funcs
+
     def loadFont(self, modelPath,
                  spaceAdvance = None, lineHeight = None,
                  pointSize = None,
@@ -712,22 +735,23 @@ class Loader(DirectObject):
                 flags &= ~LoaderOptions.TFMultiview
             loaderOptions.setTextureFlags(flags)
 
+        sampler = SamplerState()
+        if minfilter is not None:
+            sampler.setMinfilter(minfilter)
+        if magfilter is not None:
+            sampler.setMagfilter(magfilter)
+        if anisotropicDegree is not None:
+            sampler.setAnisotropicDegree(anisotropicDegree)
+
         if alphaPath is None:
             assert Loader.notify.debug("Loading texture: %s" % (texturePath))
-            texture = TexturePool.loadTexture(texturePath, 0, readMipmaps, loaderOptions)
+            texture = TexturePool.loadTexture(texturePath, 0, readMipmaps, loaderOptions, sampler)
         else:
             assert Loader.notify.debug("Loading texture: %s %s" % (texturePath, alphaPath))
-            texture = TexturePool.loadTexture(texturePath, alphaPath, 0, 0, readMipmaps, loaderOptions)
+            texture = TexturePool.loadTexture(texturePath, alphaPath, 0, 0, readMipmaps, loaderOptions, sampler)
         if not texture and not okMissing:
             message = 'Could not load texture: %s' % (texturePath)
             raise IOError(message)
-
-        if minfilter is not None:
-            texture.setMinfilter(minfilter)
-        if magfilter is not None:
-            texture.setMagfilter(magfilter)
-        if anisotropicDegree is not None:
-            texture.setAnisotropicDegree(anisotropicDegree)
 
         return texture
 
@@ -774,17 +798,18 @@ class Loader(DirectObject):
             loaderOptions.setTextureFlags(flags)
             loaderOptions.setTextureNumViews(numViews)
 
-        texture = TexturePool.load3dTexture(texturePattern, readMipmaps, loaderOptions)
+        sampler = SamplerState()
+        if minfilter is not None:
+            sampler.setMinfilter(minfilter)
+        if magfilter is not None:
+            sampler.setMagfilter(magfilter)
+        if anisotropicDegree is not None:
+            sampler.setAnisotropicDegree(anisotropicDegree)
+
+        texture = TexturePool.load3dTexture(texturePattern, readMipmaps, loaderOptions, sampler)
         if not texture and not okMissing:
             message = 'Could not load 3-D texture: %s' % (texturePattern)
             raise IOError(message)
-
-        if minfilter is not None:
-            texture.setMinfilter(minfilter)
-        if magfilter is not None:
-            texture.setMagfilter(magfilter)
-        if anisotropicDegree is not None:
-            texture.setAnisotropicDegree(anisotropicDegree)
 
         return texture
 
@@ -831,17 +856,18 @@ class Loader(DirectObject):
             loaderOptions.setTextureFlags(flags)
             loaderOptions.setTextureNumViews(numViews)
 
-        texture = TexturePool.load2dTextureArray(texturePattern, readMipmaps, loaderOptions)
+        sampler = SamplerState()
+        if minfilter is not None:
+            sampler.setMinfilter(minfilter)
+        if magfilter is not None:
+            sampler.setMagfilter(magfilter)
+        if anisotropicDegree is not None:
+            sampler.setAnisotropicDegree(anisotropicDegree)
+
+        texture = TexturePool.load2dTextureArray(texturePattern, readMipmaps, loaderOptions, sampler)
         if not texture and not okMissing:
             message = 'Could not load 2-D texture array: %s' % (texturePattern)
             raise IOError(message)
-
-        if minfilter is not None:
-            texture.setMinfilter(minfilter)
-        if magfilter is not None:
-            texture.setMagfilter(magfilter)
-        if anisotropicDegree is not None:
-            texture.setAnisotropicDegree(anisotropicDegree)
 
         return texture
 
@@ -884,22 +910,22 @@ class Loader(DirectObject):
                 flags &= ~LoaderOptions.TFMultiview
             loaderOptions.setTextureFlags(flags)
 
-        texture = TexturePool.loadCubeMap(texturePattern, readMipmaps, loaderOptions)
+        sampler = SamplerState()
+        if minfilter is not None:
+            sampler.setMinfilter(minfilter)
+        if magfilter is not None:
+            sampler.setMagfilter(magfilter)
+        if anisotropicDegree is not None:
+            sampler.setAnisotropicDegree(anisotropicDegree)
+
+        texture = TexturePool.loadCubeMap(texturePattern, readMipmaps, loaderOptions, sampler)
         if not texture and not okMissing:
             message = 'Could not load cube map: %s' % (texturePattern)
             raise IOError(message)
 
-        if minfilter is not None:
-            texture.setMinfilter(minfilter)
-        if magfilter is not None:
-            texture.setMagfilter(magfilter)
-        if anisotropicDegree is not None:
-            texture.setAnisotropicDegree(anisotropicDegree)
-
         return texture
 
     def unloadTexture(self, texture):
-
         """
         Removes the previously-loaded texture from the cache, so
         that when the last reference to it is gone, it will be
@@ -944,7 +970,6 @@ class Loader(DirectObject):
 
     def loadSound(self, manager, soundPath, positional = False,
                   callback = None, extraArgs = []):
-
         """Loads one or more sound files, specifying the particular
         AudioManager that should be used to load them.  The soundPath
         may be either a single filename, or a list of filenames.  If a
@@ -994,7 +1019,7 @@ class Loader(DirectObject):
     def unloadSfx(self, sfx):
         if sfx:
             if self.base.sfxManagerList:
-                self.base.sfxManagerList[0].uncacheSound (sfx.getName())
+                self.base.sfxManagerList[0].uncacheSound(sfx.getName())
 
 ##     def makeNodeNamesUnique(self, nodePath, nodeCount):
 ##         if nodeCount == 0:
@@ -1006,7 +1031,7 @@ class Loader(DirectObject):
 ##             self.makeNodeNamesUnique(nodePath.getChild(i), nodeCount)
 
     def loadShader(self, shaderPath, okMissing = False):
-        shader = ShaderPool.loadShader (shaderPath)
+        shader = ShaderPool.loadShader(shaderPath)
         if not shader and not okMissing:
             message = 'Could not load shader file: %s' % (shaderPath)
             raise IOError(message)
@@ -1064,10 +1089,10 @@ class Loader(DirectObject):
         drop in the new models. """
         self.notify.debug("asyncFlattenDone: %s" % (models,))
         assert len(models) == len(origModelList)
-        for i in range(len(models)):
+        for i, model in enumerate(models):
             origModelList[i].getChildren().detach()
             orig = origModelList[i].node()
-            flat = models[i].node()
+            flat = model.node()
             orig.copyAllProperties(flat)
             flat.replaceNode(orig)
 

@@ -126,15 +126,16 @@ typedef long Py_hash_t;
 /* Python 3.3 */
 
 #if PY_MAJOR_VERSION >= 3
-// Python 3 versions before 3.3.3 defined this incorrectly.
-#  undef _PyErr_OCCURRED
-#  define _PyErr_OCCURRED() (PyThreadState_GET()->curexc_type)
-
 // Python versions before 3.3 did not define this.
 #  if PY_VERSION_HEX < 0x03030000
 #    define PyUnicode_AsUTF8 _PyUnicode_AsString
 #    define PyUnicode_AsUTF8AndSize _PyUnicode_AsStringAndSize
 #  endif
+#endif
+
+/* Python 3.4 */
+#if PY_VERSION_HEX < 0x03040000
+#define PyGILState_Check() (PyGILState_GetThisThreadState() == _PyThreadState_Current)
 #endif
 
 /* Python 3.6 */
@@ -206,8 +207,22 @@ INLINE PyObject *_PyLong_Lshift(PyObject *a, size_t shiftby) {
 
 /* Python 3.9 */
 
+#ifndef PyCFunction_CheckExact
+#  define PyCFunction_CheckExact(op) (Py_TYPE(op) == &PyCFunction_Type)
+#endif
+
 #if PY_VERSION_HEX < 0x03090000
-EXPCL_PYPANDA PyObject *PyObject_CallNoArgs(PyObject *func);
+INLINE PyObject *PyObject_CallNoArgs(PyObject *func) {
+#if PY_VERSION_HEX >= 0x03080000
+  return _PyObject_Vectorcall(func, nullptr, 0, nullptr);
+#elif PY_VERSION_HEX >= 0x03070000
+  return _PyObject_FastCallDict(func, nullptr, 0, nullptr);
+#elif PY_VERSION_HEX >= 0x03060000
+  return _PyObject_FastCall(func, nullptr, 0);
+#else
+  return PyObject_CallObject(func, nullptr);
+#endif
+}
 
 INLINE PyObject *PyObject_CallOneArg(PyObject *callable, PyObject *arg) {
 #if PY_VERSION_HEX >= 0x03060000
@@ -227,13 +242,6 @@ INLINE PyObject *PyObject_CallMethodOneArg(PyObject *obj, PyObject *name, PyObje
 #endif
 
 /* Other Python implementations */
-
-// _PyErr_OCCURRED is an undocumented macro version of PyErr_Occurred.
-// Some implementations of the CPython API (e.g. PyPy's cpyext) do not define
-// it, so in these cases we just silently fall back to PyErr_Occurred.
-#ifndef _PyErr_OCCURRED
-#  define _PyErr_OCCURRED() PyErr_Occurred()
-#endif
 
 #endif  // HAVE_PYTHON
 
