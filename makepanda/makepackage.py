@@ -1011,7 +1011,7 @@ def MakeInstaller(version, **kwargs):
             if GetTargetArch() == 'x64':
                 dir += '-x64'
 
-        fn = "Panda3D-"
+        fn = "Panda3D-TTRMDev-"
 
         title = "Panda3D SDK " + version
 

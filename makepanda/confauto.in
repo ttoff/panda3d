@@ -141,3 +141,6 @@ default-model-extension .egg
 # tables.
 #st#load-file-type srt pandaspeedtree
 #st#load-file-type stf pandaspeedtree
+
+default-lod-type fade
+lod-fade-time 2.0
