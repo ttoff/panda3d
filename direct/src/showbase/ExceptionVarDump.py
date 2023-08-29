@@ -69,7 +69,7 @@ oldExcepthook = None
 # from its main exception handler
 wantStackDumpLog = False
 wantStackDumpUpload = False
-variableDumpReasons: list = []
+variableDumpReasons = []
 dumpOnExceptionInit = False
 
 

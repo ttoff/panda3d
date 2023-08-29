@@ -81,7 +81,7 @@ class EmbeddedPandaWindow(wx.Window):
 if not hasattr(wxgl, 'GLCanvas'):
     OpenGLPandaWindow = None
 else:
-    class OpenGLPandaWindow(wxgl.GLCanvas):  # type: ignore[no-redef]
+    class OpenGLPandaWindow(wxgl.GLCanvas):
         """ This class implements a Panda3D "window" that actually draws
         within the wx GLCanvas object.  It is supported whenever OpenGL is
         Panda's rendering engine, and GLCanvas is available in wx. """

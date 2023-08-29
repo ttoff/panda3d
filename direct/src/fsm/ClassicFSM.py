@@ -5,8 +5,6 @@ Note:
     existing code.  New code should use the :mod:`.FSM` module instead.
 """
 
-from __future__ import annotations
-
 __all__ = ['ClassicFSM']
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
@@ -15,7 +13,7 @@ from direct.showbase.MessengerGlobal import messenger
 import weakref
 
 if __debug__:
-    _debugFsms: dict[str, weakref.ref] = {}
+    _debugFsms = {}
 
     def printDebugFsmList():
         for k in sorted(_debugFsms.keys()):

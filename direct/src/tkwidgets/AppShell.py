@@ -21,11 +21,11 @@ import builtins
 
 # Create toplevel widget dictionary
 if not hasattr(builtins, "widgetDict"):
-    builtins.widgetDict = {}  # type: ignore[attr-defined]
+    builtins.widgetDict = {}
 
 # Create toplevel variable dictionary
 if not hasattr(builtins, "variableDict"):
-    builtins.variableDict = {}  # type: ignore[attr-defined]
+    builtins.variableDict = {}
 
 
 def resetWidgetDict():

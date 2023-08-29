@@ -1,5 +1,4 @@
 from panda3d.core import Point3, VBase3
-from direct.showbase.ShowBaseGlobal import base
 
 if hasattr(base, 'le'):
     objectMgr = base.le.objectMgr
@@ -7,7 +6,7 @@ if hasattr(base, 'le'):
     ui.sceneGraphUI.reset()
 
 else:
-    objectMgr = base.objectMgr  # type: ignore[attr-defined]
+    objectMgr = base.objectMgr
 # temporary place holder for nodepath
 objects = {}
 

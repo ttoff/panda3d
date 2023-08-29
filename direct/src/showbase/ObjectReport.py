@@ -11,8 +11,6 @@
 >>> o.diff(o2)
 """
 
-from __future__ import annotations
-
 __all__ = ['ExclusiveObjectPool', 'ObjectReport']
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
@@ -28,8 +26,8 @@ import builtins
 class ExclusiveObjectPool(DirectObject):
     # ObjectPool specialization that excludes particular objects
     # IDs of objects to globally exclude from reporting
-    _ExclObjs: list[object] = []
-    _ExclObjIds: dict[int, int] = {}
+    _ExclObjs = []
+    _ExclObjIds = {}
     _SyncMaster = Sync('ExclusiveObjectPool.ExcludedObjectList')
     _SerialNumGen = SerialNumGen()
 

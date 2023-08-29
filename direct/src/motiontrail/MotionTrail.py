@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from panda3d.core import (
     BoundingVolume,
     ColorBlendAttrib,
@@ -94,7 +92,7 @@ class MotionTrail(NodePath, DirectObject):
     notify = directNotify.newCategory("MotionTrail")
 
     task_added = False
-    motion_trail_list: list[MotionTrail] = []
+    motion_trail_list = []
     motion_trail_task_name = "motion_trail_task"
 
     global_enable = True

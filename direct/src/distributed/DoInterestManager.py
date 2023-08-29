@@ -7,8 +7,6 @@ zone, remove interest in that zone.
 p.s. A great deal of this code is just code moved from ClientRepository.py.
 """
 
-from __future__ import annotations
-
 from panda3d.core import ConfigVariableBool
 from .MsgTypes import CLIENT_ADD_INTEREST, CLIENT_ADD_INTEREST_MULTIPLE, CLIENT_REMOVE_INTEREST
 from direct.showbase import DirectObject
@@ -100,9 +98,9 @@ class DoInterestManager(DirectObject.DirectObject):
     _ContextIdSerialNum = 100
     _ContextIdMask = 0x3FFFFFFF # avoid making Python create a long
 
-    _interests: dict[int, InterestState] = {}
+    _interests = {}
     if __debug__:
-        _debug_interestHistory: list[tuple] = []
+        _debug_interestHistory = []
         _debug_maxDescriptionLen = 40
 
     _SerialGen = SerialNumGen()

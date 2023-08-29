@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from direct.showbase.DirectObject import DirectObject
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from panda3d.core import (
@@ -64,7 +62,7 @@ class DistancePhasedNode(PhasedObject, DirectObject, NodePath):
 
     notify = directNotify.newCategory("DistancePhasedObject")
     __InstanceSequence = 0
-    __InstanceDeque: list[int] = []
+    __InstanceDeque = []
 
     @staticmethod
     def __allocateId():

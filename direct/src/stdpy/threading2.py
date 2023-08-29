@@ -65,7 +65,7 @@ if __debug__:
 
 else:
     # Disable this when using "python -O"
-    class _Verbose(object):  # type: ignore[no-redef]
+    class _Verbose(object):
         def __init__(self, verbose=None):
             pass
         def _note(self, *args):
