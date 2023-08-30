@@ -1007,7 +1007,7 @@ def MakeInstaller(version, **kwargs):
     if target == 'windows':
         dir = kwargs.pop('installdir', None)
         if dir is None:
-            dir = "C:\\Panda3D-" + version
+            dir = "C:\\Panda3D-TTRMDev-" + version
             if GetTargetArch() == 'x64':
                 dir += '-x64'
 
