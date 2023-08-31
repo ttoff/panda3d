@@ -257,6 +257,7 @@ pre_write() {
 ////////////////////////////////////////////////////////////////////
 void DNAData::
 write(std::ostream &out, DNAStorage *store, int indent_level) const {
+  out << "// Created with the Open Toontown Tools Level Editor - https://github.com/OpenToontownTools/OpenLevelEditor/" << std::endl;;
   // Write out anything the store wants to write
   store->fixup();
   store->write(out, indent_level);
