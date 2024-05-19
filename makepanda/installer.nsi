@@ -344,6 +344,12 @@ Section "Tools and utilities" SecTools
     WriteRegStr HKCU "Software\Classes\Panda3D.Multifile\shell\extract" "" "Extract here"
     WriteRegStr HKCU "Software\Classes\Panda3D.Multifile\shell\extract\command" "" '"$INSTDIR\bin\multify.exe" -xf "%1"'
 
+    WriteRegStr HKCU "Software\Classes\TTRealms.DataPack" "" "Toontown Realms Data Pack"
+    WriteRegStr HKCU "Software\Classes\TTRealms.DataPack\DefaultIcon" "" "$INSTDIR\bin\multify.exe"
+    WriteRegStr HKCU "Software\Classes\TTRealms.DataPack\shell" "" "open"
+    WriteRegStr HKCU "Software\Classes\TTRealms.DataPack\shell\extract" "" "Extract here"
+    WriteRegStr HKCU "Software\Classes\TTRealms.DataPack\shell\extract\command" "" '"$INSTDIR\bin\multify.exe" -xf "%1"'
+
     IfFileExists "$INSTDIR\bin\pstats.exe" 0 SkipPStatsFileAssociation
     WriteRegStr HKCU "Software\Classes\Panda3D.PStatsSession" "" "PStats Session"
     WriteRegStr HKCU "Software\Classes\Panda3D.PStatsSession\DefaultIcon" "" "%SystemRoot%\system32\imageres.dll,144"
@@ -761,6 +767,8 @@ Section -post
     WriteRegStr HKCU "Software\Classes\.pz" "PerceivedType" "compressed"
     WriteRegStr HKCU "Software\Classes\.mf" "" "Panda3D.Multifile"
     WriteRegStr HKCU "Software\Classes\.mf" "PerceivedType" "compressed"
+    WriteRegStr HKCU "Software\Classes\.rmdp" "" "TTRealms.DataPack"
+    WriteRegStr HKCU "Software\Classes\.rmdp" "PerceivedType" "compressed"
     WriteRegStr HKCU "Software\Classes\.prc" "" "inifile"
     WriteRegStr HKCU "Software\Classes\.prc" "Content Type" "text/plain"
     WriteRegStr HKCU "Software\Classes\.prc" "PerceivedType" "text"
@@ -826,6 +834,11 @@ Section Uninstall
     StrCmp $0 "$INSTDIR\bin\multify.exe" 0 +3
     DeleteRegKey HKCU "Software\Classes\Panda3D.Multifile\DefaultIcon"
     DeleteRegKey HKCU "Software\Classes\Panda3D.Multifile\shell"
+
+    ReadRegStr $0 HKCU "Software\Classes\TTRealms.DataPack\DefaultIcon" ""
+    StrCmp $0 "$INSTDIR\bin\multify.exe" 0 +3
+    DeleteRegKey HKCU "Software\Classes\TTRealms.DataPack\DefaultIcon"
+    DeleteRegKey HKCU "Software\Classes\TTRealms.DataPack\shell"
 
     ReadRegStr $0 HKCU "Software\Classes\Panda3D.PStatsSession\DefaultIcon" ""
     StrCmp $0 "$INSTDIR\bin\pstats.exe" 0 +3

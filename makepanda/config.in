@@ -86,7 +86,7 @@ use-movietexture #t
 
 # The new version of panda supports hardware vertex animation, but it's not quite ready
 
-hardware-animated-vertices #f
+hardware-animated-vertices #t
 
 # Enable the model-cache, but only for models, not textures.
 
@@ -102,3 +102,8 @@ basic-shaders-only #f
 
 default-lod-type fade
 lod-fade-time 2.0
+
+preload-textures #f
+preload-simple-textures #t
+simple-image-size 16 16
+allow-incomplete-render #t
