@@ -11,10 +11,11 @@ import tempfile
 import subprocess
 import time
 import struct
-from sysconfig import get_platform, get_config_var
 from optparse import OptionParser
 from base64 import urlsafe_b64encode
 from makepandacore import LocateBinary, GetExtensionSuffix, SetVerbose, GetVerbose, GetMetadataValue, CrossCompiling, GetThirdpartyDir, SDK, GetStrip
+from locations import get_config_var
+from sysconfig import get_platform
 
 
 def get_real_filepath(filename):
@@ -102,6 +103,16 @@ IGNORE_UNIX_DEPS_OF = [
     "panda3d_tools/pstats",
 ]
 
+# Tools to exclude from the wheel.
+EXCLUDE_BINARIES = [
+    'eggcacher',
+    'packpanda',
+    'interrogate',
+    'interrogate_module',
+    'test_interrogate',
+    'parse_file',
+]
+
 WHEEL_DATA = """Wheel-Version: 1.0
 Generator: makepanda
 Root-Is-Purelib: false
@@ -113,7 +124,7 @@ PROJECT_URLS = dict([line.split('=', 1) for line in GetMetadataValue('project_ur
 METADATA = {
     "license": GetMetadataValue('license'),
     "name": GetMetadataValue('name'),
-    "metadata_version": "2.0",
+    "metadata_version": "2.1",
     "generator": "makepanda",
     "summary": GetMetadataValue('description'),
     "extensions": {
@@ -872,7 +883,7 @@ if __debug__:
     tools_init = ''
     for file in sorted(os.listdir(bin_dir)):
         basename = os.path.splitext(file)[0]
-        if basename in ('eggcacher', 'packpanda'):
+        if basename in EXCLUDE_BINARIES:
             continue
 
         source_path = os.path.join(bin_dir, file)
@@ -894,7 +905,7 @@ if __debug__:
     entry_points += 'build_apps = direct.dist.commands:build_apps\n'
     entry_points += 'bdist_apps = direct.dist.commands:bdist_apps\n'
     entry_points += '[setuptools.finalize_distribution_options]\n'
-    entry_points += 'build_apps = direct.dist.commands:finalize_distribution_options\n'
+    entry_points += 'build_apps = direct.dist._dist_hooks:finalize_distribution_options\n'
 
     whl.write_file_data('panda3d_tools/__init__.py', PANDA3D_TOOLS_INIT.format(tools_init))
 

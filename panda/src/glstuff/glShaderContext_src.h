@@ -91,7 +91,6 @@ private:
   GLint _slider_table_index;
   GLsizei _transform_table_size;
   GLsizei _slider_table_size;
-  GLint _frame_number_loc;
   GLint _frame_number;
 
 #ifndef OPENGLES
@@ -107,12 +106,13 @@ private:
 
   struct ImageInput {
     CPT(InternalName) _name;
-    CLP(TextureContext) *_gtc;
-    bool _writable;
+    CLP(TextureContext) *_gtc = nullptr;
+    bool _writable = false;
   };
   pvector<ImageInput> _glsl_img_inputs;
 
-  LMatrix4 *_mat_part_cache = nullptr;
+  LVecBase4f *_mat_part_cache = nullptr;
+  LVecBase4f *_mat_scratch_space = nullptr;
 
   CLP(GraphicsStateGuardian) *_glgsg;
 
