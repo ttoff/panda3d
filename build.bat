@@ -1,2 +1,3 @@
-thirdparty\win-python3.6-x64\python.exe makepanda\makepanda.py --installer --everything --verbose --msvc-version=14.3 --windows-sdk=10 --arch=x64 --no-eigen --no-tinydisplay --no-openexr --no-squish --no-maya2016 --no-maya20165 --threads 24
+thirdparty\win-python3.12-x64\python.exe makepanda\makepanda.py --installer --everything --verbose --msvc-version=14.3 --windows-sdk=10 --arch=x64 --no-eigen --no-tinydisplay --no-openexr --no-squish --no-maya2016 --no-maya20165 --threads 24
+thirdparty\win-python3.12-x64\python.exe makepanda\makepanda.py --wheel --everything --verbose --msvc-version=14.3 --windows-sdk=10 --arch=x64 --no-eigen --no-tinydisplay --no-openexr --no-squish --no-maya2016 --no-maya20165 --threads 24
 pause
