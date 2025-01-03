@@ -16,7 +16,9 @@
 
 #include "directbase.h"
 #include "cInterval.h"
-
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 /**
  * The base class for a family of intervals that linearly interpolate one or
  * more numeric values over time.
@@ -28,6 +30,21 @@ PUBLISHED:
     BT_ease_in,
     BT_ease_out,
     BT_ease_in_out,
+	BT_quint_in,
+	BT_quint_out,
+	BT_quint_in_out,
+	BT_circ_in,
+	BT_circ_out,
+	BT_circ_in_out,
+	BT_sine_in,
+	BT_sine_out,
+	BT_sine_in_out,
+	BT_cubic_in,
+	BT_cubic_out,
+	BT_cubic_in_out,
+	BT_back_in,
+	BT_back_out,
+	BT_back_in_out,
     BT_invalid
   };
 
