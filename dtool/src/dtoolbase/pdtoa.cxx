@@ -32,6 +32,8 @@ THE SOFTWARE.
 #include <intrin.h>
 #include <float.h>
 #define copysign _copysign
+
+#pragma float_control(precise, on, push)
 #endif
 
 #define UINT64_C2(h, l) ((static_cast<uint64_t>(h) << 32) | static_cast<uint64_t>(l))
@@ -250,7 +252,7 @@ inline static unsigned CountDecimalDigit32(uint32_t n) {
 }
 
 inline static void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buffer, int* len, int* K) {
-  static const uint32_t kPow10[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 0, 0, 0, 0, 0 };
+  static const uint32_t kPow10[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 0, 0, 0, 0, 0, 0 };
   const DiyFp one(uint64_t(1) << -Mp.e, Mp.e);
   const DiyFp wp_w = Mp - W;
   uint32_t p1 = static_cast<uint32_t>(Mp.f >> -one.e);
@@ -586,3 +588,7 @@ void pftoa(float value, char *buffer) {
     }
   }
 }
+
+#ifdef _MSC_VER
+#pragma float_control(pop)
+#endif

@@ -57,13 +57,13 @@ enum {
  */
 CocoaGraphicsWindow::
 CocoaGraphicsWindow(GraphicsEngine *engine, GraphicsPipe *pipe,
-                    const std::string &name,
+                    std::string name,
                     const FrameBufferProperties &fb_prop,
                     const WindowProperties &win_prop,
                     int flags,
                     GraphicsStateGuardian *gsg,
                     GraphicsOutput *host) :
-  GraphicsWindow(engine, pipe, name, fb_prop, win_prop, flags, gsg, host)
+  GraphicsWindow(engine, pipe, std::move(name), fb_prop, win_prop, flags, gsg, host)
 {
   _window = nil;
   _view = nil;
@@ -427,6 +427,14 @@ open_window() {
         << "Failed to create Cocoa window.\n";
       return false;
     }
+
+    if ([_window screen] == nil) {
+      cocoadisplay_cat.error()
+        << "No screen available for Cocoa window.\n";
+      [_window close];
+      _window = nil;
+      return false;
+    }
   }
 
   // Create the NSView to render to.
@@ -774,7 +782,10 @@ set_properties_now(WindowProperties &properties) {
     if (!_properties.get_fullscreen()) {
       // We use the view, not the window, to convert the frame size, expressed
       // in pixels, into points as the "dpi awareness" is managed by the view.
-      NSSize size = [_view convertSizeFromBacking:NSMakeSize(width, height)];
+      NSSize size = NSMakeSize(width, height);
+      if (dpi_aware) {
+        size = [_view convertSizeFromBacking:NSMakeSize(width, height)];
+      }
       if (_window != nil) {
         [_window setContentSize:size];
       }
@@ -782,7 +793,8 @@ set_properties_now(WindowProperties &properties) {
 
       if (cocoadisplay_cat.is_debug()) {
         cocoadisplay_cat.debug()
-          << "Setting size to " << width << ", " << height << "\n";
+          << "Setting size to " << width << " x " << height
+          << " (scaled to " << size.width << " x " << size.height << ")\n";
       }
 
       // Cocoa doesn't send an event, and the other resize-window handlers
@@ -1379,7 +1391,11 @@ handle_resize_event() {
     [_view setFrameSize:contentRect.size];
   }
 
-  NSRect frame = [_view convertRectToBacking:[_view bounds]];
+  NSRect frame = [_view bounds];
+
+  if (dpi_aware) {
+    frame = [_view convertRectToBacking:frame];
+  }
 
   WindowProperties properties;
   bool changed = false;
@@ -1830,8 +1846,8 @@ handle_mouse_moved_event(bool in_window, double x, double y, bool absolute) {
       && !in_window) {
     CGPoint point;
 
-    nx = std::max(0., std::min((double) get_x_size() - 1, nx));
-    ny = std::max(0., std::min((double) get_y_size() - 1, ny));
+    nx = std::clamp(nx, 0., (double) get_x_size() - 1);
+    ny = std::clamp(ny, 0., (double) get_y_size() - 1);
 
     // Convert back mouse position to screen space using point units
     if (_properties.get_fullscreen()) {

@@ -89,6 +89,7 @@ MSVCVERSIONINFO = {
     (14,1): {"vsversion":(15,0), "vsname":"Visual Studio 2017"},
     (14,2): {"vsversion":(16,0), "vsname":"Visual Studio 2019"},
     (14,3): {"vsversion":(17,0), "vsname":"Visual Studio 2022"},
+    (14,5): {"vsversion":(18,0), "vsname":"Visual Studio 2026"},
 }
 
 ########################################################################
@@ -284,7 +285,7 @@ def GetHost():
         return 'darwin'
     elif sys.platform.startswith('linux'):
         try:
-            # Python seems to offer no built-in way to check this.
+            # Python versions before 3.13 reported android as "linux"
             osname = subprocess.check_output(["uname", "-o"])
             if osname.strip().lower() == b'android':
                 return 'android'
@@ -294,6 +295,9 @@ def GetHost():
             return 'linux'
     elif sys.platform.startswith('freebsd'):
         return 'freebsd'
+    # Handle for Python >= 3.13
+    elif sys.platform == 'android':
+        return 'android'
     else:
         exit('Unrecognized sys.platform: %s' % (sys.platform))
 
@@ -304,6 +308,9 @@ def GetHostArch():
 
     target = GetTarget()
     if target == 'windows':
+        machine = platform.machine().lower()
+        if machine in ('arm64', 'aarch64'):
+            return 'arm64'
         return 'x64' if host_64 else 'x86'
 
     machine = platform.machine()
@@ -337,9 +344,11 @@ def SetTarget(target, arch=None):
             arch = 'x86'
         elif arch == 'amd64':
             arch = 'x64'
+        elif arch == 'aarch64':
+            arch = 'arm64'
 
-        if arch is not None and arch != 'x86' and arch != 'x64':
-            exit("Windows architecture must be x86 or x64")
+        if arch is not None and arch not in ('x86', 'x64', 'arm64'):
+            exit("Windows architecture must be x86, x64 or arm64")
 
     elif target == 'darwin':
         DEFAULT_CC = "clang"
@@ -357,11 +366,11 @@ def SetTarget(target, arch=None):
 
     elif target == 'android' or target.startswith('android-'):
         if arch is None:
-            # If compiling on Android, default to same architecture.  Otherwise, arm.
+            # If compiling on Android, default to same architecture.
             if host == 'android':
                 arch = host_arch
             else:
-                arch = 'armv7a'
+                exit('Specify an Android architecture using --arch')
 
         if arch == 'aarch64':
             arch = 'arm64'
@@ -371,12 +380,9 @@ def SetTarget(target, arch=None):
         target, _, api = target.partition('-')
         if api:
             ANDROID_API = int(api)
-        elif arch in ('mips64', 'arm64', 'x86_64'):
-            # 64-bit platforms were introduced in Android 21.
-            ANDROID_API = 21
         else:
             # Default to the lowest API level still supported by Google.
-            ANDROID_API = 19
+            ANDROID_API = 21
 
         # Determine the prefix for our gcc tools, eg. arm-linux-androideabi-gcc
         global ANDROID_ABI, ANDROID_TRIPLE
@@ -592,8 +598,8 @@ def GetInterrogateDir():
             return INTERROGATE_DIR
 
         dir = os.path.join(GetOutputDir(), "tmp", "interrogate")
-        if not os.path.isdir(os.path.join(dir, "panda3d_interrogate-0.2.0.dist-info")):
-            oscmd("\"%s\" -m pip install --force-reinstall -t \"%s\" panda3d-interrogate==0.2.0" % (sys.executable, dir))
+        if not os.path.isdir(os.path.join(dir, "panda3d_interrogate-0.11.2.dist-info")):
+            oscmd("\"%s\" -m pip install --force-reinstall --upgrade -t \"%s\" panda3d-interrogate==0.11.2" % (sys.executable, dir))
 
         INTERROGATE_DIR = dir
 
@@ -666,14 +672,18 @@ def LocateBinary(binary):
 
 def oscmd(cmd, ignoreError = False, cwd=None):
     if VERBOSE:
-        print(GetColor("blue") + cmd.split(" ", 1)[0] + " " + GetColor("magenta") + cmd.split(" ", 1)[1] + GetColor())
+        if " " in cmd:
+            print(GetColor("blue") + cmd.split(" ", 1)[0] + " " + GetColor("magenta") + cmd.split(" ", 1)[1] + GetColor())
+        else:
+            print(GetColor("blue") + cmd + GetColor())
     sys.stdout.flush()
 
+    if cmd[0] == '"':
+        exe = cmd[1 : cmd.index('"', 1)]
+    else:
+        exe = cmd.split()[0]
+
     if sys.platform == "win32":
-        if cmd[0] == '"':
-            exe = cmd[1 : cmd.index('"', 1)]
-        else:
-            exe = cmd.split()[0]
         exe_path = LocateBinary(exe)
         if exe_path is None:
             exit("Cannot find "+exe+" on search path")
@@ -709,7 +719,7 @@ def oscmd(cmd, ignoreError = False, cwd=None):
             exit("")
 
     if res != 0 and not ignoreError:
-        if "interrogate" in cmd.split(" ", 1)[0] and GetVerbose():
+        if "interrogate" in exe and "interrogate_module" not in exe and GetVerbose():
             print(ColorText("red", "Interrogate failed, retrieving debug output..."))
             sys.stdout.flush()
             verbose_cmd = cmd.split(" ", 1)[0] + " -vv " + cmd.split(" ", 1)[1]
@@ -1392,6 +1402,8 @@ def GetThirdpartyDir():
 
         if target_arch == 'x64':
             THIRDPARTYDIR = base + "/win-libs-vc" + vc + "-x64/"
+        elif target_arch == 'arm64':
+            THIRDPARTYDIR = base + "/win-libs-vc" + vc + "-arm64/"
         else:
             THIRDPARTYDIR = base + "/win-libs-vc" + vc + "/"
 
@@ -1421,6 +1433,9 @@ def GetThirdpartyDir():
 
     elif (target == 'android'):
         THIRDPARTYDIR = base + "/android-libs-%s/" % (target_arch)
+
+        if target_arch == 'armv7a' and not os.path.isdir(THIRDPARTYDIR):
+            THIRDPARTYDIR = base + "/android-libs-arm/"
 
     elif (target == 'emscripten'):
         THIRDPARTYDIR = base + "/emscripten-libs/"
@@ -1846,7 +1861,7 @@ def SmartPkgEnable(pkg, pkgconfig = None, libs = None, incs = None, defs = None,
             DefSymbol(target_pkg, d, v)
         return
 
-    elif not custom_loc and GetHost() == "darwin" and framework is not None:
+    elif not custom_loc and GetHost() == "darwin" and GetTarget() == "darwin" and framework is not None:
         prefix = SDK["MACOSX"]
         if (os.path.isdir(prefix + "/Library/Frameworks/%s.framework" % framework) or
             os.path.isdir(prefix + "/System/Library/Frameworks/%s.framework" % framework) or
@@ -2121,10 +2136,20 @@ def SdkLocatePython(prefer_thirdparty_python=False):
                 sdkdir += "-dbg"
             if GetTargetArch() == 'x64':
                 sdkdir += "-x64"
+            elif GetTargetArch() == 'arm64':
+                sdkdir += "-arm64"
 
         sdkdir = sdkdir.replace('\\', '/')
         SDK["PYTHON"] = sdkdir
         SDK["PYTHONEXEC"] = SDK["PYTHON"] + "/python"
+
+        gil_disabled = locations.get_config_var("Py_GIL_DISABLED")
+        if gil_disabled and int(gil_disabled):
+            SDK["PYTHONEXEC"] += "%d.%dt" % sys.version_info[:2]
+            abiflags = "t"
+            DefSymbol("PYTHON", "Py_GIL_DISABLED", "1")
+        else:
+            abiflags = ""
 
         if (GetOptimize() <= 2):
             SDK["PYTHONEXEC"] += "_d.exe"
@@ -2136,11 +2161,11 @@ def SdkLocatePython(prefer_thirdparty_python=False):
 
         # Determine which version it is by checking which dll is in the directory.
         if (GetOptimize() <= 2):
-            py_dlls = glob.glob(SDK["PYTHON"] + "/python[0-9][0-9]_d.dll") + \
-                      glob.glob(SDK["PYTHON"] + "/python[0-9][0-9][0-9]_d.dll")
+            py_dlls = glob.glob(SDK["PYTHON"] + "/python[0-9][0-9]" + abiflags + "_d.dll") + \
+                      glob.glob(SDK["PYTHON"] + "/python[0-9][0-9][0-9]" + abiflags + "_d.dll")
         else:
-            py_dlls = glob.glob(SDK["PYTHON"] + "/python[0-9][0-9].dll") + \
-                      glob.glob(SDK["PYTHON"] + "/python[0-9][0-9][0-9].dll")
+            py_dlls = glob.glob(SDK["PYTHON"] + "/python[0-9][0-9]" + abiflags + ".dll") + \
+                      glob.glob(SDK["PYTHON"] + "/python[0-9][0-9][0-9]" + abiflags + ".dll")
 
         if len(py_dlls) == 0:
             exit("Could not find the Python dll in %s." % (SDK["PYTHON"]))
@@ -2151,37 +2176,62 @@ def SdkLocatePython(prefer_thirdparty_python=False):
         py_dllver = py_dll.strip(".DHLNOPTY_dhlnopty")
         ver = py_dllver[0] + '.' + py_dllver[1:]
 
-        SDK["PYTHONVERSION"] = "python" + ver
-        os.environ["PYTHONHOME"] = SDK["PYTHON"]
+        SDK["PYTHONVERSION"] = "python" + ver + abiflags
 
         running_ver = '%d.%d' % sys.version_info[:2]
         if ver != running_ver:
             Warn("running makepanda with Python %s, but building Panda3D with Python %s." % (running_ver, ver))
 
     elif CrossCompiling() or (prefer_thirdparty_python and os.path.isdir(os.path.join(GetThirdpartyDir(), "python"))):
-        tp_python = os.path.join(GetThirdpartyDir(), "python")
+        if PkgHasCustomLocation("PYTHON"):
+            incdir = FindIncDirectory("PYTHON")
+            libdirs = FindLibDirectories("PYTHON")
+        else:
+            tp_python = os.path.join(GetThirdpartyDir(), "python")
+            incdir = tp_python + "/include"
+            libdirs = [tp_python + "/lib"]
+            bindir = tp_python + "/bin"
 
         if GetTarget() == 'darwin':
-            py_libs = glob.glob(tp_python + "/lib/libpython[0-9].[0-9].dylib") + \
-                      glob.glob(tp_python + "/lib/libpython[0-9].[0-9][0-9].dylib")
+            suffix = abiflags + '.dylib'
         else:
-            py_libs = glob.glob(tp_python + "/lib/libpython[0-9].[0-9].so") + \
-                      glob.glob(tp_python + "/lib/libpython[0-9].[0-9][0-9].so")
+            suffix = abiflags + '.so'
+
+        py_libs = []
+        py_static_libs = []
+        for libdir in libdirs:
+            py_libs += glob.glob(libdir + "/libpython[0-9].[0-9]" + suffix)
+            py_libs += glob.glob(libdir + "/libpython[0-9].[0-9][0-9]" + suffix)
+            py_static_libs += glob.glob(libdir + "/libpython[0-9].[0-9]" + abiflags + ".a")
+            py_static_libs += glob.glob(libdir + "/libpython[0-9].[0-9][0-9]" + abiflags + ".a")
+
+        # Prefer dynamic libs over static libs
+        py_libs += py_static_libs
 
         if len(py_libs) == 0:
-            py_libs = glob.glob(tp_python + "/lib/libpython[0-9].[0-9].a") + \
-                      glob.glob(tp_python + "/lib/libpython[0-9].[0-9][0-9].a")
+            exit("Could not find the Python library in %s." % (libdirs))
+        elif len(py_libs) == 1:
+            py_lib = os.path.basename(py_libs[0])
+            py_libver = py_lib.lstrip('.abdhilnopsty').rstrip('.abdhilnopsy')
+            bindir = os.path.dirname(os.path.dirname(py_libs[0])) + "/bin"
+        else:
+            # Does one match our version?
+            gil_disabled = locations.get_config_var("Py_GIL_DISABLED")
+            abiflags = 't' if gil_disabled and int(gil_disabled) else ''
+            our_libver = locations.get_python_version() + abiflags
 
-        if len(py_libs) == 0:
-            exit("Could not find the Python library in %s." % (tp_python))
-        elif len(py_libs) > 1:
-            exit("Found multiple Python libraries in %s." % (tp_python))
+            for py_lib_full in py_libs:
+                py_lib = os.path.basename(py_lib_full)
+                py_libver = py_lib.lstrip('.abdhilnopsty').rstrip('.abdhilnopsy')
+                if py_libver == our_libver:
+                    bindir = os.path.dirname(os.path.dirname(py_lib_full)) + "/bin"
+                    break
+            else:
+                exit("Found multiple Python libraries in %s, none matching current version." % (libdirs))
 
-        py_lib = os.path.basename(py_libs[0])
-        py_libver = py_lib.strip('.abdhilnopsty')
         SDK["PYTHONVERSION"] = "python" + py_libver
-        SDK["PYTHONEXEC"] = tp_python + "/bin/" + SDK["PYTHONVERSION"]
-        SDK["PYTHON"] = tp_python + "/include/" + SDK["PYTHONVERSION"]
+        SDK["PYTHONEXEC"] = bindir + "/" + SDK["PYTHONVERSION"]
+        SDK["PYTHON"] = incdir + "/" + SDK["PYTHONVERSION"]
 
     elif GetTarget() == 'darwin' and not PkgHasCustomLocation("PYTHON"):
         # On macOS, search for the Python framework directory matching the
@@ -2189,11 +2239,15 @@ def SdkLocatePython(prefer_thirdparty_python=False):
         sysroot = SDK.get("MACOSX", "")
         version = locations.get_python_version()
 
-        py_fwx = "{0}/System/Library/Frameworks/Python.framework/Versions/{1}".format(sysroot, version)
+        framework_name = "Python"
+        if 't' in abiflags:
+            framework_name += "T"
+
+        py_fwx = "{0}/System/Library/Frameworks/{1}.framework/Versions/{2}".format(sysroot, framework_name, version)
 
         if not os.path.exists(py_fwx):
             # Fall back to looking on the system.
-            py_fwx = "/Library/Frameworks/Python.framework/Versions/" + version
+            py_fwx = "/Library/Frameworks/{0}.framework/Versions/{1}".format(framework_name, version)
 
         if not os.path.exists(py_fwx):
             # Newer macOS versions use this scheme.
@@ -2235,6 +2289,9 @@ def SdkLocatePython(prefer_thirdparty_python=False):
 
 def SdkLocateVisualStudio(version=(10,0)):
     if (GetHost() != "windows"): return
+
+    if version == (14, 4):
+        exit("There is no MSVC 14.4; Visual Studio 2026 uses MSVC 14.5.")
 
     try:
         msvcinfo = MSVCVERSIONINFO[version]
@@ -2433,9 +2490,9 @@ def SdkLocateMacOSX(archs = []):
     sdk_versions = []
     if 'arm64' not in archs:
         # Prefer pre-10.14 for now so that we can keep building FMOD.
-        sdk_versions += ["10.13", "10.12"]
+        sdk_versions += ["10.13"]
 
-    sdk_versions += ["14.0", "13.3", "13.1", "13.0", "12.3", "11.3", "11.1", "11.0"]
+    sdk_versions += ["15.5", "15.4", "15.2", "15.1", "15.0", "14.5", "14.4", "14.2", "14.0", "13.3", "13.1", "13.0", "12.3", "11.3", "11.1", "11.0"]
 
     if 'arm64' not in archs:
         sdk_versions += ["10.15", "10.14"]
@@ -2444,16 +2501,20 @@ def SdkLocateMacOSX(archs = []):
         sdkname = "MacOSX" + version
         if os.path.exists("/Library/Developer/CommandLineTools/SDKs/%s.sdk" % sdkname):
             SDK["MACOSX"] = "/Library/Developer/CommandLineTools/SDKs/%s.sdk" % sdkname
-            return
         elif os.path.exists("/Developer/SDKs/%s.sdk" % sdkname):
             SDK["MACOSX"] = "/Developer/SDKs/%s.sdk" % sdkname
-            return
         elif os.path.exists("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/%s.sdk" % sdkname):
             SDK["MACOSX"] = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/%s.sdk" % sdkname
-            return
         elif xcode_dir and os.path.exists("%s/Platforms/MacOSX.platform/Developer/SDKs/%s.sdk" % (xcode_dir, sdkname)):
             SDK["MACOSX"] = "%s/Platforms/MacOSX.platform/Developer/SDKs/%s.sdk" % (xcode_dir, sdkname)
-            return
+        else:
+            continue
+
+        if GetVerbose():
+            print("Using macOS %s SDK located at %s" % (version, SDK["MACOSX"]))
+        else:
+            print("Using macOS %s SDK" % version)
+        return
 
     exit("Couldn't find any suitable MacOSX SDK!")
 
@@ -2578,6 +2639,8 @@ def SdkLocateAndroid():
     # We need to redistribute the C++ standard library.
     stdlibc = os.path.join(ndk_root, 'sources', 'cxx-stl', 'llvm-libc++')
     stl_lib = os.path.join(stdlibc, 'libs', abi, 'libc++_shared.so')
+    if not os.path.isfile(stl_lib):
+        stl_lib = os.path.join(prebuilt_dir, 'sysroot', 'usr', 'lib', ANDROID_TRIPLE.rstrip('0123456789'), 'libc++_shared.so')
     CopyFile(os.path.join(GetOutputDir(), 'lib', 'libc++_shared.so'), stl_lib)
 
     # The Android support library polyfills C++ features not available in the
@@ -2713,6 +2776,8 @@ def SetupVisualStudioEnviron():
         # Try the x86 tools, those should work just as well.
         if arch == 'x64' and os.path.isfile(vc_binpath + "\\x86_amd64\\cl.exe"):
             binpath = "{0}\\x86_amd64;{0}".format(vc_binpath)
+        elif arch == 'arm64' and os.path.isfile(vc_binpath + "\\Hostx64\\arm64\\cl.exe"):
+            binpath = "{0}\\Hostx64\\arm64;{0}".format(vc_binpath)
         elif winsdk_ver.startswith('10.'):
             exit("Couldn't find compilers in %s.  You may need to install the Windows SDK 7.1 and the Visual C++ 2010 SP1 Compiler Update for Windows SDK 7.1." % binpath)
         else:
@@ -2831,6 +2896,13 @@ def FindLibDirectory(opt):
     for mod, dir in LIBDIRECTORIES:
         if mod == opt:
             return os.path.abspath(dir)
+
+def FindLibDirectories(opt):
+    result = []
+    for mod, dir in LIBDIRECTORIES:
+        if mod == opt:
+            result.append(os.path.abspath(dir))
+    return result
 
 def FindOptDirectory(opt):
     # Find the common directory associated with this module
@@ -2977,6 +3049,27 @@ def SetupBuildEnvironment(compiler):
                 libdir += '64'
             SYS_LIB_DIRS += [libdir]
 
+        # On multiarch systems, system libraries live under /usr/lib/<triplet>.
+        # On some systems these don't show up in -print-search-dirs, so we try
+        # to check for this manually.
+        if target == 'linux':
+            handle = os.popen(GetCXX() + " -print-multiarch 2>/dev/null")
+            triplet = handle.read().strip()
+            handle.close()
+            if triplet:
+                sysroot = SDK.get("SYSROOT", "")
+                for prefix in ("/usr/lib/", "/lib/", "/usr/local/lib/"):
+                    libdir = os.path.normpath(sysroot + prefix + triplet)
+                    if os.path.isdir(libdir) and libdir not in SYS_LIB_DIRS:
+                        SYS_LIB_DIRS.append(libdir)
+
+        if sys.platform != "darwin":
+            # Some Linux distributions (eg. Fedora) don't add /usr/local/lib64
+            if ("/usr/lib64" in SYS_LIB_DIRS and
+                "/usr/local/lib64" not in SYS_LIB_DIRS and
+                os.path.isdir("/usr/local/lib64")):
+                SYS_LIB_DIRS.append("/usr/local/lib64")
+
         # Now extract the preprocessor's include directories.
         cmd = GetCXX() + " -x c++ -v -E " + os.devnull
         cmd += sysroot_flag
@@ -3034,6 +3127,9 @@ def SetupBuildEnvironment(compiler):
 
     # If we're cross-compiling, no point in putting our output dirs on the path.
     if CrossCompiling():
+        if GetTarget() == 'emscripten' and not PkgSkip("PYTHON"):
+            AddToPathEnv("PYTHONPATH", GetOutputDir())
+            os.environ["PYTHONHOME"] = os.path.dirname(os.path.dirname(SDK["PYTHON"]))
         return
 
     # Add our output directories to the environment.
@@ -3045,6 +3141,7 @@ def SetupBuildEnvironment(compiler):
         # extension_native_helpers.py currently expects to find libpandaexpress on sys.path.
         AddToPathEnv("PYTHONPATH", os.path.join(builtdir, "bin"))
         AddToPathEnv("PATH", os.path.join(builtdir, "plugins"))
+        os.environ["PYTHONHOME"] = SDK["PYTHON"]
 
     # Now for the special (DY)LD_LIBRARY_PATH on Unix-esque systems.
     if GetHost() != 'windows':
@@ -3361,12 +3458,22 @@ def GetExtensionSuffix():
         else:
             dllext = ''
 
+        gil_disabled = locations.get_config_var("Py_GIL_DISABLED")
+        suffix = 't' if gil_disabled and int(gil_disabled) else ''
         if GetTargetArch() == 'x64':
-            return dllext + '.cp%d%d-win_amd64.pyd' % (sys.version_info[:2])
+            return dllext + '.cp%d%d%s-win_amd64.pyd' % (sys.version_info[0], sys.version_info[1], suffix)
+        elif GetTargetArch() == 'arm64':
+            return dllext + '.cp%d%d%s-win_arm64.pyd' % (sys.version_info[0], sys.version_info[1], suffix)
         else:
-            return dllext + '.cp%d%d-win32.pyd' % (sys.version_info[:2])
+            return dllext + '.cp%d%d%s-win32.pyd' % (sys.version_info[0], sys.version_info[1], suffix)
     elif target == 'emscripten':
-        return '.so'
+        abi = GetPythonABI()
+        arch = GetTargetArch()
+        return '.{0}-{1}-emscripten.so'.format(abi, arch)
+    elif target == 'android':
+        abi = GetPythonABI()
+        triple = ANDROID_TRIPLE.rstrip('0123456789')
+        return '.{0}-{1}.so'.format(abi, triple)
     elif CrossCompiling():
         return '.{0}.so'.format(GetPythonABI())
     else:
@@ -3379,7 +3486,14 @@ def GetPythonABI():
         if soabi:
             return soabi
 
-    return 'cpython-%d%d' % (sys.version_info[:2])
+    soabi = 'cpython-%d%d' % (sys.version_info[:2])
+
+    if sys.version_info >= (3, 13):
+        gil_disabled = locations.get_config_var("Py_GIL_DISABLED")
+        if gil_disabled and int(gil_disabled):
+            return soabi + 't'
+
+    return soabi
 
 def CalcLocation(fn, ipath):
     if fn.startswith("panda3d/") and fn.endswith(".py"):
@@ -3394,6 +3508,7 @@ def CalcLocation(fn, ipath):
     if (fn == "AndroidManifest.xml"): return OUTPUTDIR+"/"+fn
     if (fn == "classes.dex"): return OUTPUTDIR+"/"+fn
     if (fn.endswith(".cxx")): return CxxFindSource(fn, ipath)
+    if (fn.endswith(".cpp")): return CxxFindSource(fn, ipath)
     if (fn.endswith(".I")):   return CxxFindSource(fn, ipath)
     if (fn.endswith(".h")):   return CxxFindSource(fn, ipath)
     if (fn.endswith(".c")):   return CxxFindSource(fn, ipath)
@@ -3501,7 +3616,7 @@ def GetCurrentPythonVersionInfo():
         return
 
     return {
-        "version": SDK["PYTHONVERSION"][6:].rstrip('dmu'),
+        "version": SDK["PYTHONVERSION"][6:].rstrip('dmut'),
         "soabi": GetPythonABI(),
         "ext_suffix": GetExtensionSuffix(),
         "executable": sys.executable,
@@ -3656,7 +3771,7 @@ def TargetAdd(target, dummy=0, opts=[], input=[], dep=[], ipath=None, winrc=None
         t.inputs.append(fullinput)
         # Don't re-link a library or binary if just its dependency dlls have been altered.
         # This should work out fine in most cases, and often reduces recompilation time.
-        if os.path.splitext(x)[-1] not in SUFFIX_DLL:
+        if os.path.splitext(x)[-1] not in SUFFIX_DLL or (GetLinkAllStatic() and target.endswith(".exe")):
             t.deps[fullinput] = 1
             (base,suffix) = os.path.splitext(x)
             if SUFFIX_INC.count(suffix):
