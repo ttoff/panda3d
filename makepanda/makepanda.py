@@ -6002,7 +6002,6 @@ if (PkgSkip("TOONTOWN") == 0 and PkgSkip("PYTHON") == 0):
     PyTargetAdd('toontown.pyd', input='toontown_module.obj')
     PyTargetAdd('toontown.pyd', input='libp3toontown_igate.obj')
     PyTargetAdd('toontown.pyd', input='libp3toontown.dll')
-    PyTargetAdd('toontown.pyd', input='libp3interrogatedb.dll')
     PyTargetAdd('toontown.pyd', input=COMMON_PANDA_LIBS)
 
 #
